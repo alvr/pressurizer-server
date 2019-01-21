@@ -7,6 +7,8 @@ import io.ktor.routing.get
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import me.alvr.pressurizer.config.ServerSpec
+import me.alvr.pressurizer.config.config
 
 fun Application.pressurizer() {
     routing {
@@ -16,10 +18,11 @@ fun Application.pressurizer() {
     }
 }
 
-fun main(args: Array<String>) {
+fun main() {
     embeddedServer(
         Netty,
-        module = Application::pressurizer,
-        port = System.getenv("PORT").toInt()
+        host = config[ServerSpec.host],
+        port = config[ServerSpec.port],
+        module = Application::pressurizer
     ).start(true)
 }

@@ -6,6 +6,7 @@ group = "me.alvr"
 version = "0.1.0"
 
 object Versions {
+    const val KONF = "0.12"
     const val KOTLIN = "1.3.11"
     const val KTOR = "1.1.1"
     const val LOGBACK = "1.2.3"
@@ -24,11 +25,21 @@ plugins {
 repositories {
     jcenter()
     mavenCentral()
+    maven("https://jitpack.io")
 }
 
 dependencies {
     implementation(kotlin("stdlib-jdk8", Versions.KOTLIN))
     implementation("io.ktor", "ktor-server-netty", Versions.KTOR)
+
+    implementation("com.uchuhimo", "konf", Versions.KONF) {
+        exclude("com.fasterxml.jackson.core")
+        exclude("com.moandjiezana.toml", "toml4j")
+        exclude("org.apiguardian", "apiguardian-api")
+        exclude("org.dom4j", "dom4j")
+        exclude("org.eclipse.jgit", "org.eclipse.jgit")
+        exclude("org.yaml", "snakeyaml")
+    }
 
     implementation("ch.qos.logback", "logback-classic", Versions.LOGBACK)
 
