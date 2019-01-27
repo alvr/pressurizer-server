@@ -30,7 +30,11 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8", Versions.KOTLIN))
-    implementation("io.ktor", "ktor-server-netty", Versions.KTOR)
+
+    "io.ktor:ktor".also { k ->
+        implementation("$k-auth-jwt:${Versions.KTOR}")
+        implementation("$k-server-netty:${Versions.KTOR}")
+    }
 
     implementation("com.uchuhimo", "konf", Versions.KONF) {
         exclude("com.fasterxml.jackson.core")
