@@ -34,6 +34,7 @@ dependencies {
     "io.ktor:ktor".also { k ->
         implementation("$k-auth-jwt:${Versions.KTOR}")
         implementation("$k-server-netty:${Versions.KTOR}")
+        testImplementation("$k-server-test-host:${Versions.KTOR}")
     }
 
     implementation("com.uchuhimo", "konf", Versions.KONF) {
@@ -46,6 +47,8 @@ dependencies {
     }
 
     implementation("ch.qos.logback", "logback-classic", Versions.LOGBACK)
+
+    testImplementation("io.kotlintest", "kotlintest-runner-junit5", Versions.KOTLINTEST)
 
     codacy("com.github.codacy:codacy-coverage-reporter:-SNAPSHOT")
 }
