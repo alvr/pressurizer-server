@@ -4,8 +4,8 @@
 
 ---
 
-| *Branch*    | *Build*             | *Coverage*             | *Quality*             |
-| ----------- | :-----------------: | :--------------------: | :-------------------: |
+| *Branch*    | *Build*             | *Coverage*             | *Quality*               |
+| ----------- | :-----------------: | :--------------------: | :---------------------: |
 | **master**  | [![mBuild]][travis] | [![mCoverage]][mCodacy] | [![mQuality]][mCodacy] |
 | **develop** | [![dBuild]][travis] | [![dCoverage]][dCodacy] | [![dQuality]][dCodacy] |
 

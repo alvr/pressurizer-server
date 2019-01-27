@@ -34,17 +34,18 @@ dependencies {
 
     "io.ktor:ktor".also { k ->
         implementation("$k-auth-jwt:${Versions.KTOR}")
+        implementation("$k-gson:${Versions.KTOR}")
         implementation("$k-server-netty:${Versions.KTOR}")
         testImplementation("$k-server-test-host:${Versions.KTOR}")
     }
 
     implementation("com.uchuhimo", "konf", Versions.KONF) {
         exclude("com.fasterxml.jackson.core")
-        exclude("com.moandjiezana.toml", "toml4j")
-        exclude("org.apiguardian", "apiguardian-api")
-        exclude("org.dom4j", "dom4j")
-        exclude("org.eclipse.jgit", "org.eclipse.jgit")
-        exclude("org.yaml", "snakeyaml")
+        exclude("com.moandjiezana.toml")
+        exclude("org.apiguardian")
+        exclude("org.dom4j")
+        exclude("org.eclipse.jgit")
+        exclude("org.yaml")
     }
 
     implementation("ch.qos.logback", "logback-classic", Versions.LOGBACK)

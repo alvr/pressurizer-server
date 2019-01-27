@@ -45,7 +45,7 @@ object AuthJWT {
      * is signed with the same [algorithm] when it was created.
      *
      * @param token to verify
-     * @return DecodedJWT
+     * @return a [DecodedJWT]
      * @throws JWTVerificationException if [token] is not valid
      */
     fun isValid(token: String): DecodedJWT = verifier.verify(token)
