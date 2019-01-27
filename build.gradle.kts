@@ -7,7 +7,7 @@ version = "0.1.0"
 
 object Versions {
     const val KONF = "0.12"
-    const val KOTLIN = "1.3.11"
+    const val KOTLIN = "1.3.20"
     const val KTOR = "1.1.1"
     const val LOGBACK = "1.2.3"
 }
@@ -17,7 +17,7 @@ val codacy: Configuration by configurations.creating
 plugins {
     application
     jacoco
-    kotlin("jvm") version "1.3.11"
+    kotlin("jvm") version "1.3.20"
     id("com.github.johnrengelman.shadow") version "4.0.3"
     id("com.adarshr.test-logger") version "1.6.0"
 }
