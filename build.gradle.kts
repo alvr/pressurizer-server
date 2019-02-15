@@ -8,9 +8,12 @@ version = "0.1.0"
 object Versions {
     const val KONF = "0.13.1"
     const val KOTLIN = "1.3.21"
+    const val EXPOSED = "0.12.2"
+    const val HIKARI = "3.3.1"
     const val KOTLINTEST = "3.2.1"
     const val KTOR = "1.1.2"
     const val LOGBACK = "1.2.3"
+    const val POSTGRES = "42.2.5"
 }
 
 val codacy: Configuration by configurations.creating
@@ -41,6 +44,10 @@ dependencies {
         exclude("org.eclipse.jgit", "org.eclipse.jgit")
         exclude("org.yaml", "snakeyaml")
     }
+
+    implementation("org.jetbrains.exposed", "exposed", Versions.EXPOSED)
+    implementation("org.postgresql", "postgresql", Versions.POSTGRES)
+    implementation("com.zaxxer", "HikariCP", Versions.HIKARI)
 
     implementation("ch.qos.logback", "logback-classic", Versions.LOGBACK)
 
