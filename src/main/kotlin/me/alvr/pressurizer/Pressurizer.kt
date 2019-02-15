@@ -5,9 +5,12 @@ import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.auth.Authentication
 import io.ktor.auth.jwt.jwt
+import io.ktor.features.CORS
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.StatusPages
 import io.ktor.gson.gson
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.uri
 import io.ktor.response.respond
@@ -41,6 +44,16 @@ fun Application.pressurizer() {
     install(ContentNegotiation) {
         gson {
         }
+    }
+    install(CORS) {
+        method(HttpMethod.Delete)
+        method(HttpMethod.Get)
+        method(HttpMethod.Patch)
+        method(HttpMethod.Post)
+        method(HttpMethod.Put)
+        header(HttpHeaders.Authorization)
+        allowCredentials = true
+        anyHost()
     }
     install(StatusPages) {
         exception<IllegalStateException> {

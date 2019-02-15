@@ -34,6 +34,11 @@ dependencies {
 
     "io.ktor:ktor".also { k ->
         implementation("$k-auth-jwt:${Versions.KTOR}")
+        implementation("$k-client-apache:${Versions.KTOR}")
+        implementation("$k-client-core:${Versions.KTOR}")
+        implementation("$k-client-gson:${Versions.KTOR}") {
+            exclude("org.jetbrains.kotlinx")
+        }
         implementation("$k-gson:${Versions.KTOR}")
         implementation("$k-server-netty:${Versions.KTOR}")
         testImplementation("$k-server-test-host:${Versions.KTOR}")

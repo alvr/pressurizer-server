@@ -67,19 +67,4 @@ class PostTokenTest : ExpectSpec({
             }
         }
     }
-
-    context("send no token") {
-        expect("response status code is 400") {
-            withTestPressurizer {
-                handleRequest(HttpMethod.Post, "/token") {
-                    addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-                }.apply {
-                    assertSoftly {
-                        response.status() shouldBe HttpStatusCode.BadRequest
-                        response.content shouldContain "The token was expected to have 3 parts, but got 1."
-                    }
-                }
-            }
-        }
-    }
 })
