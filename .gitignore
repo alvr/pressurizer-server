@@ -40,3 +40,4 @@ out/
 
 # KotlinTest
 .kotlintest/
+\.idea/\.name

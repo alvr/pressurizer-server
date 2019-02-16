@@ -6,11 +6,14 @@ group = "me.alvr"
 version = "0.1.0"
 
 object Versions {
-    const val KONF = "0.12"
-    const val KOTLIN = "1.3.20"
+    const val KONF = "0.13.1"
+    const val KOTLIN = "1.3.21"
+    const val EXPOSED = "0.12.2"
+    const val HIKARI = "3.3.1"
     const val KOTLINTEST = "3.2.1"
-    const val KTOR = "1.1.1"
+    const val KTOR = "1.1.2"
     const val LOGBACK = "1.2.3"
+    const val POSTGRES = "42.2.5"
 }
 
 val codacy: Configuration by configurations.creating
@@ -18,8 +21,8 @@ val codacy: Configuration by configurations.creating
 plugins {
     application
     jacoco
-    kotlin("jvm") version "1.3.20"
-    id("com.github.johnrengelman.shadow") version "4.0.3"
+    kotlin("jvm") version "1.3.21"
+    id("com.github.johnrengelman.shadow") version "4.0.4"
     id("com.adarshr.test-logger") version "1.6.0"
 }
 
@@ -52,6 +55,10 @@ dependencies {
         exclude("org.eclipse.jgit")
         exclude("org.yaml")
     }
+
+    implementation("org.jetbrains.exposed", "exposed", Versions.EXPOSED)
+    implementation("org.postgresql", "postgresql", Versions.POSTGRES)
+    implementation("com.zaxxer", "HikariCP", Versions.HIKARI)
 
     implementation("ch.qos.logback", "logback-classic", Versions.LOGBACK)
 
