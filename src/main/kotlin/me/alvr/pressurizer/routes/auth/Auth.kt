@@ -1,6 +1,7 @@
 package me.alvr.pressurizer.routes.auth
 
 import io.ktor.application.call
+import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.http.ContentType
@@ -14,14 +15,24 @@ import me.alvr.pressurizer.auth.AuthJWT
 import me.alvr.pressurizer.auth.SteamId
 import me.alvr.pressurizer.config.ServerSpec
 import me.alvr.pressurizer.config.config
+import me.alvr.pressurizer.database.Database
 import me.alvr.pressurizer.utils.OPENID
+import me.alvr.pressurizer.utils.PLAYER_SUMMARY
 import me.alvr.pressurizer.utils.gClient
+import me.alvr.pressurizer.utils.responses.PlayerSummary
 
 internal fun Route.auth() = get("/login/auth") {
     val auth = call.request.checkLogin()
 
     if (!auth.first || auth.second.id.isEmpty())
         error("Cannot verify the login")
+
+    if (Database.getUserById(auth.second).isEmpty()) {
+        val userInfo = gClient.get<PlayerSummary>(PLAYER_SUMMARY.format(config[ServerSpec.apikey], auth.second.id))
+        val countryCode = userInfo.response.players.first().countryCode
+
+        Database.insertUser(auth.second, countryCode)
+    }
 
     val token = AuthJWT.sign(auth.second)
 

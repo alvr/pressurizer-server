@@ -6,7 +6,7 @@ group = "me.alvr"
 version = "0.1.0"
 
 object Versions {
-    const val KONF = "0.13.1"
+    const val KONF = "0.12"
     const val KOTLIN = "1.3.21"
     const val EXPOSED = "0.12.2"
     const val HIKARI = "3.3.1"

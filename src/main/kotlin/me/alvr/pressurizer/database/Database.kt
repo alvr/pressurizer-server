@@ -3,6 +3,8 @@ package me.alvr.pressurizer.database
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.withContext
+import me.alvr.pressurizer.auth.SteamId
 import me.alvr.pressurizer.config.DatabaseSpec
 import me.alvr.pressurizer.config.config
 import me.alvr.pressurizer.database.tables.CountriesTable
@@ -13,6 +15,7 @@ import me.alvr.pressurizer.database.tables.UsersTable
 import me.alvr.pressurizer.database.tables.VersionTable
 import org.jetbrains.exposed.sql.SchemaUtils.createMissingTablesAndColumns
 import org.jetbrains.exposed.sql.insertIgnore
+import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.concurrent.Executors
@@ -73,6 +76,25 @@ object Database {
             if (index + 1 > currentVersion) {
                 val statement = this.javaClass.getResource(migration).readText()
                 exec(statement)
+            }
+        }
+    }
+
+    suspend fun insertUser(user: SteamId, countryCode: String?) = withContext(dispatcher) {
+        transaction {
+            UsersTable.insertIgnore {
+                it[steamId] = user.id
+                it[country] = countryCode
+            }
+        }
+    }
+
+    suspend fun getUserById(user: SteamId) = withContext(dispatcher) {
+        transaction {
+            UsersTable.select { UsersTable.steamId eq user.id }.map {
+                it[UsersTable.steamId]
+                it[UsersTable.country]
+                it[UsersTable.updatedAt]
             }
         }
     }
