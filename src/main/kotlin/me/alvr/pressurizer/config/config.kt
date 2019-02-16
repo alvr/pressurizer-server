@@ -24,6 +24,7 @@ import com.uchuhimo.konf.Config
  */
 val config = Config {
     addSpec(ServerSpec)
+    addSpec(DatabaseSpec)
 }
     .from.hocon.resource("pressurizer.conf")
     .from.hocon.file("pressurizer.conf")
