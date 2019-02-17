@@ -53,7 +53,9 @@ jobs:
         - psql -c "CREATE USER pressurizer_test WITH PASSWORD 'pressurizer_test';" -U postgres
         - psql -c "GRANT ALL PRIVILEGES ON DATABASE pressurizer_test TO pressurizer_test;" -U postgres
       script: ./gradlew --no-daemon test
-      after_success: ./gradlew --no-daemon uploadReportCodacy
+      after_success:
+        - ./gradlew --no-daemon uploadReportCodacy
+        - bash <(curl -s https://codecov.io/bash)
 
     - stage: fatJar
       name: Create fat JAR Pressurizer
