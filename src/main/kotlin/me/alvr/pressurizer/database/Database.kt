@@ -4,7 +4,6 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.withContext
-import me.alvr.pressurizer.auth.SteamId
 import me.alvr.pressurizer.config.DatabaseSpec
 import me.alvr.pressurizer.config.config
 import me.alvr.pressurizer.database.tables.CountriesTable
@@ -13,6 +12,7 @@ import me.alvr.pressurizer.database.tables.GamesTable
 import me.alvr.pressurizer.database.tables.UserGamesTable
 import me.alvr.pressurizer.database.tables.UsersTable
 import me.alvr.pressurizer.database.tables.VersionTable
+import me.alvr.pressurizer.domain.SteamId
 import org.jetbrains.exposed.sql.SchemaUtils.createMissingTablesAndColumns
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.select

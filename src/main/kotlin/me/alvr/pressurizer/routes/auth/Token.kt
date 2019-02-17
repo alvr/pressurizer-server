@@ -7,7 +7,7 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
 import me.alvr.pressurizer.auth.AuthJWT
-import me.alvr.pressurizer.auth.Token
+import me.alvr.pressurizer.domain.Token
 
 internal fun Route.token() = post("/token") {
     try {

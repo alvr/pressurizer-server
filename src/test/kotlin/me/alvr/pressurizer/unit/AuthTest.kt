@@ -12,7 +12,7 @@ import io.kotlintest.shouldBe
 import io.kotlintest.shouldThrow
 import io.kotlintest.specs.ExpectSpec
 import me.alvr.pressurizer.auth.AuthJWT
-import me.alvr.pressurizer.auth.SteamId
+import me.alvr.pressurizer.domain.SteamId
 
 class AuthTest : ExpectSpec({
     context("a valid token") {

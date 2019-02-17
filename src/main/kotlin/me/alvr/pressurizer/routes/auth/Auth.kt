@@ -12,7 +12,7 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import kotlinx.coroutines.runBlocking
 import me.alvr.pressurizer.auth.AuthJWT
-import me.alvr.pressurizer.auth.SteamId
+import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.config.ServerSpec
 import me.alvr.pressurizer.config.config
 import me.alvr.pressurizer.database.Database

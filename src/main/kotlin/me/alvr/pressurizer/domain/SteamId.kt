@@ -1,4 +1,4 @@
-package me.alvr.pressurizer.auth
+package me.alvr.pressurizer.domain
 
 import io.ktor.auth.Principal
 

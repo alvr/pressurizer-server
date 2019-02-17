@@ -7,6 +7,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException
 import com.auth0.jwt.interfaces.DecodedJWT
 import me.alvr.pressurizer.config.ServerSpec
 import me.alvr.pressurizer.config.config
+import me.alvr.pressurizer.domain.SteamId
 import java.time.Instant
 import java.time.Period
 import java.util.Date
