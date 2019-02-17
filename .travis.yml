@@ -1,18 +1,31 @@
+dist: xenial
+sudo: true
 language: java
+jdk: openjdk8
 
-jdk:
-  - openjdk8
+services: postgresql
+
+addons:
+  postgresql: "10"
+
+env:
+  global:
+    - PGHOST=localhost
+    - PGPORT=5432
 
 cache:
   directories:
-    - "$HOME/.gradle/caches/"
-    - "$HOME/.gradle/wrapper/"
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
     - build/libs
 
 stages:
-  - test
-  - build
-  - deploy
+  - name: build
+  - name: test
+  - name: fatJar
+    if: branch = develop
+  - name: deploy
+    if: branch = master
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -27,21 +40,31 @@ after_deploy:
 
 jobs:
   include:
-  - stage: test
-    name: Tests
-    script: ./gradlew test
-    after_success:
-      - ./gradlew uploadReportCodacy
-  - stage: build
-    name: Build Pressurizer
-    script: ./gradlew shadowJar
-  - stage: deploy
-    name: Deploy to Heroku
-    install: skip
-    script: skip
-    deploy:
-      provider: script
-      skip_cleanup: true
-      script: heroku deploy:jar build/libs/pressurizer.jar --app pressurizer
-      on:
-        branch: master
+    - stage: build
+      name: Build Pressurizer
+      install: skip
+      script: ./gradlew --no-daemon compileKotlin
+
+    - stage: test
+      name: Tests
+      install: skip
+      before_script:
+        - psql -c "CREATE DATABASE pressurizer_test;" -U postgres
+        - psql -c "CREATE USER pressurizer_test WITH PASSWORD 'pressurizer_test';" -U postgres
+        - psql -c "GRANT ALL PRIVILEGES ON DATABASE pressurizer_test TO pressurizer_test;" -U postgres
+      script: ./gradlew --no-daemon test
+      after_success: ./gradlew --no-daemon uploadReportCodacy
+
+    - stage: fatJar
+      name: Create fat JAR Pressurizer
+      install: skip
+      script: ./gradlew --no-daemon shadowJar
+
+    - stage: deploy
+      name: Deploy to Heroku
+      install: skip
+      script: skip
+      deploy:
+        provider: script
+        skip_cleanup: true
+        script: heroku deploy:jar build/libs/pressurizer.jar --app pressurizer

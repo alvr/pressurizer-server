@@ -6,7 +6,7 @@ group = "me.alvr"
 version = "0.1.0"
 
 object Versions {
-    const val KONF = "0.13.1"
+    const val KONF = "0.12"
     const val KOTLIN = "1.3.21"
     const val EXPOSED = "0.12.2"
     const val HIKARI = "3.3.1"
@@ -34,15 +34,26 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8", Versions.KOTLIN))
-    implementation("io.ktor", "ktor-server-netty", Versions.KTOR)
+
+    "io.ktor:ktor".also { k ->
+        implementation("$k-auth-jwt:${Versions.KTOR}")
+        implementation("$k-client-apache:${Versions.KTOR}")
+        implementation("$k-client-core:${Versions.KTOR}")
+        implementation("$k-client-gson:${Versions.KTOR}") {
+            exclude("org.jetbrains.kotlinx")
+        }
+        implementation("$k-gson:${Versions.KTOR}")
+        implementation("$k-server-netty:${Versions.KTOR}")
+        testImplementation("$k-server-test-host:${Versions.KTOR}")
+    }
 
     implementation("com.uchuhimo", "konf", Versions.KONF) {
         exclude("com.fasterxml.jackson.core")
-        exclude("com.moandjiezana.toml", "toml4j")
-        exclude("org.apiguardian", "apiguardian-api")
-        exclude("org.dom4j", "dom4j")
-        exclude("org.eclipse.jgit", "org.eclipse.jgit")
-        exclude("org.yaml", "snakeyaml")
+        exclude("com.moandjiezana.toml")
+        exclude("org.apiguardian")
+        exclude("org.dom4j")
+        exclude("org.eclipse.jgit")
+        exclude("org.yaml")
     }
 
     implementation("org.jetbrains.exposed", "exposed", Versions.EXPOSED)
@@ -50,6 +61,8 @@ dependencies {
     implementation("com.zaxxer", "HikariCP", Versions.HIKARI)
 
     implementation("ch.qos.logback", "logback-classic", Versions.LOGBACK)
+
+    testImplementation("io.kotlintest", "kotlintest-runner-junit5", Versions.KOTLINTEST)
 
     codacy("com.github.codacy:codacy-coverage-reporter:-SNAPSHOT")
 }

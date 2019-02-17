@@ -13,6 +13,6 @@ import java.time.temporal.ChronoUnit
  */
 object UsersTable : Table("users") {
     val steamId = varchar("steam_id", 20).primaryKey().uniqueIndex()
-    val country = varchar("country", 2) references CountriesTable.code
+    val country = (varchar("country", 2) references CountriesTable.code).nullable()
     val updatedAt = instant("updated_at").default(Instant.now().minus(1L, ChronoUnit.DAYS))
 }
