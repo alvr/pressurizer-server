@@ -6,10 +6,11 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 /**
+ * Database table for users.
+ *
  * [steamId] identifier of the user, in Steam64Id format.
  * [country] current country of the user. Used to determine the prices of the games.
  * [updatedAt] last time an user fetched his/her Steam library.
- *
  */
 object UsersTable : Table("users") {
     val steamId = varchar("steam_id", 20).primaryKey().uniqueIndex()

@@ -80,7 +80,7 @@ object Database {
         }
     }
 
-    suspend fun insertUser(user: SteamId, countryCode: String?) = withContext(dispatcher) {
+    suspend fun insertUser(user: SteamId, countryCode: String? = null) = withContext(dispatcher) {
         transaction {
             UsersTable.insertIgnore {
                 it[steamId] = user.id

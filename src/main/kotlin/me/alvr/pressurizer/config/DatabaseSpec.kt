@@ -10,7 +10,6 @@ import com.uchuhimo.konf.ConfigSpec
  * [user] is the owner of the database.
  * [pass] is the password of the database. Use at least 48 characters (letters, numbers and symbols).
  * [pool] is the maximum active connections the database can has.
- *
  */
 object DatabaseSpec : ConfigSpec("db") {
     val url by required<String>("url", "URL of the database")

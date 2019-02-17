@@ -7,12 +7,19 @@ import org.jetbrains.exposed.sql.Table
 import org.joda.time.DateTime
 import java.time.Instant
 
+/**
+ * Register a column of type [Instant]
+ *
+ * @receiver Table
+ * @param name Column name.
+ * @return Column<Instant> registered column.
+ */
 fun Table.instant(name: String): Column<Instant> = registerColumn(name, InstantColumnType(true))
 
 private fun DateTime.toJavaInstant() = Instant.ofEpochMilli(this.millis)
 private fun Instant.toDateTime() = DateTime(this.toEpochMilli())
 
-internal class InstantColumnType(time: Boolean) : ColumnType() {
+private class InstantColumnType(time: Boolean) : ColumnType() {
     private val delegate = DateColumnType(time)
 
     override fun sqlType(): String = delegate.sqlType()

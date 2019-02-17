@@ -41,14 +41,14 @@ internal fun Route.auth() = get("/login/auth") {
 
 private fun ApplicationRequest.checkLogin(): Pair<Boolean, SteamId> {
     val params = mutableMapOf(
-        "openid_assoc_handle" to this.queryParameters["openid.assoc_handle"],
-        "openid_signed" to this.queryParameters["openid.signed"],
-        "openid_sig" to this.queryParameters["openid.sig"],
-        "openid_ns" to this.queryParameters["openid.ns"],
+        "openid_assoc_handle" to queryParameters["openid.assoc_handle"],
+        "openid_signed" to queryParameters["openid.signed"],
+        "openid_sig" to queryParameters["openid.sig"],
+        "openid_ns" to queryParameters["openid.ns"],
         "openid_mode" to "check_authentication"
     ).apply {
-        this@checkLogin.queryParameters["openid.signed"]?.split(',')?.forEach {
-            put("openid_$it", this@checkLogin.queryParameters["openid.$it"])
+        queryParameters["openid.signed"]?.split(',')?.forEach {
+            put("openid_$it", queryParameters["openid.$it"])
         }
     }
 
@@ -61,7 +61,7 @@ private fun ApplicationRequest.checkLogin(): Pair<Boolean, SteamId> {
         }
     }.contains("true")
 
-    val user = this.queryParameters["openid.claimed_id"].orEmpty()
+    val user = queryParameters["openid.claimed_id"].orEmpty()
     val regex = Regex("^https://steamcommunity.com/openid/id/(7[0-9]{15,25}+)\$")
     val id = regex.find(user)?.groupValues?.last().orEmpty()
 
