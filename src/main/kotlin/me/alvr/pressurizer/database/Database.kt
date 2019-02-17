@@ -12,7 +12,9 @@ import me.alvr.pressurizer.database.tables.GamesTable
 import me.alvr.pressurizer.database.tables.UserGamesTable
 import me.alvr.pressurizer.database.tables.UsersTable
 import me.alvr.pressurizer.database.tables.VersionTable
+import me.alvr.pressurizer.domain.Country
 import me.alvr.pressurizer.domain.SteamId
+import me.alvr.pressurizer.domain.User
 import org.jetbrains.exposed.sql.SchemaUtils.createMissingTablesAndColumns
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.select
@@ -23,19 +25,17 @@ import kotlin.coroutines.CoroutineContext
 import org.jetbrains.exposed.sql.Database as Exposed
 
 /**
- *
+ * Database singleton to do CRUD operations.
  */
 object Database {
-    private val dispatcher: CoroutineContext
+    private val pool: Int = config[DatabaseSpec.pool]
+    private val dispatcher: CoroutineContext = Executors.newFixedThreadPool(pool).asCoroutineDispatcher()
 
     private val migrations = listOf(
         "/migrations/001_currencies_and_countries.sql"
     )
 
     init {
-        val pool = config[DatabaseSpec.pool]
-        dispatcher = Executors.newFixedThreadPool(pool).asCoroutineDispatcher()
-
         val cfg = HikariConfig()
         cfg.jdbcUrl = config[DatabaseSpec.url]
         cfg.username = config[DatabaseSpec.user]
@@ -91,10 +91,12 @@ object Database {
 
     suspend fun getUserById(user: SteamId) = withContext(dispatcher) {
         transaction {
-            UsersTable.select { UsersTable.steamId eq user.id }.map {
-                it[UsersTable.steamId]
-                it[UsersTable.country]
-                it[UsersTable.updatedAt]
+            UsersTable.select { UsersTable.steamId eq user.id }.mapNotNull {
+                User(
+                    id = SteamId(it[UsersTable.steamId]),
+                    country = it[UsersTable.country]?.let { c -> Country(c) },
+                    updatedAt = it[UsersTable.updatedAt]
+                )
             }
         }
     }
