@@ -23,5 +23,5 @@
 [dCoverage]: https://img.shields.io/codacy/coverage/e503dabc76eb4aa8adbe512495373e74/develop.svg "Coverage on develop"
 [mQuality]: https://img.shields.io/codacy/grade/e503dabc76eb4aa8adbe512495373e74/master.svg "Quality on master"
 [dQuality]: https://img.shields.io/codacy/grade/e503dabc76eb4aa8adbe512495373e74/develop.svg "Quality on develop"
-[mCodecov]: https://img.shields.io/codecov/c/github/alvr/pressurizer-client/master.svg "Coverage on master"
-[dCodecov]: https://img.shields.io/codecov/c/github/alvr/pressurizer-client/develop.svg "Coverage on develop"
+[mCodecov]: https://img.shields.io/codecov/c/github/alvr/pressurizer-server/master.svg "Coverage on master"
+[dCodecov]: https://img.shields.io/codecov/c/github/alvr/pressurizer-server/develop.svg "Coverage on develop"
