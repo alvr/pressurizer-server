@@ -12,9 +12,8 @@ import me.alvr.pressurizer.database.tables.GamesTable
 import me.alvr.pressurizer.database.tables.UserGamesTable
 import me.alvr.pressurizer.database.tables.UsersTable
 import me.alvr.pressurizer.database.tables.VersionTable
-import me.alvr.pressurizer.domain.Country
 import me.alvr.pressurizer.domain.SteamId
-import me.alvr.pressurizer.domain.User
+import me.alvr.pressurizer.domain.mappers.UserMapper
 import org.jetbrains.exposed.sql.SchemaUtils.createMissingTablesAndColumns
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.select
@@ -92,11 +91,7 @@ object Database {
     suspend fun getUserById(user: SteamId) = withContext(dispatcher) {
         transaction {
             UsersTable.select { UsersTable.steamId eq user.id }.mapNotNull {
-                User(
-                    id = SteamId(it[UsersTable.steamId]),
-                    country = it[UsersTable.country]?.let { c -> Country(c) },
-                    updatedAt = it[UsersTable.updatedAt]
-                )
+                UserMapper().map(it)
             }
         }
     }
