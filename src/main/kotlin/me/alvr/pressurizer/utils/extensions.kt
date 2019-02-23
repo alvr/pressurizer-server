@@ -14,3 +14,7 @@ fun String.getGameCost(): BigDecimal {
         .replace(Regex("[^\\d.]+"), "")
         .toBigDecimal()
 }
+
+fun Float.round() = kotlin.math.round(this * 100) / 100
+
+fun BigDecimal.round(): BigDecimal = setScale(2, BigDecimal.ROUND_HALF_EVEN)
