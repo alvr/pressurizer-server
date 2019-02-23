@@ -1,4 +1,4 @@
-package me.alvr.pressurizer.utils.responses
+package me.alvr.pressurizer.domain
 
 import com.google.gson.annotations.SerializedName
 
