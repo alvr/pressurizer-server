@@ -130,10 +130,11 @@ object Database {
         transaction {
             UserGamesTable.update({ (UserGamesTable.steamId eq user.id) and (UserGamesTable.appId eq game.appId) }) { new ->
                 game.cost?.let {
-                    if (it < BigDecimal.ZERO)
-                        new[cost] = BigDecimal.ZERO
-                    else
-                        new[cost] = it
+                    when {
+                        it < BigDecimal.ZERO -> new[cost] = BigDecimal.ZERO
+                        it > 9999.toBigDecimal() -> new[cost] = 9999.toBigDecimal()
+                        else -> new[cost] = it
+                    }
                 }
                 game.timePlayed?.let { new[timePlayed] = it }
                 game.finished?.let { new[finished] = it }
