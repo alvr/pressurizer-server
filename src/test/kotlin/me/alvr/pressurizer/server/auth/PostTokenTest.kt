@@ -1,4 +1,4 @@
-package me.alvr.pressurizer.server
+package me.alvr.pressurizer.server.auth
 
 import com.google.gson.Gson
 import io.kotlintest.assertSoftly
@@ -14,6 +14,7 @@ import io.ktor.server.testing.setBody
 import me.alvr.pressurizer.auth.AuthJWT
 import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.domain.Token
+import me.alvr.pressurizer.server.withTestPressurizer
 
 class PostTokenTest : ExpectSpec({
     context("send a valid token") {
