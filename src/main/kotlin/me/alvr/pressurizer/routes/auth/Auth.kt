@@ -18,8 +18,8 @@ import me.alvr.pressurizer.config.config
 import me.alvr.pressurizer.database.Database
 import me.alvr.pressurizer.utils.OPENID
 import me.alvr.pressurizer.utils.PLAYER_SUMMARY
-import me.alvr.pressurizer.utils.gClient
-import me.alvr.pressurizer.utils.responses.PlayerSummary
+import me.alvr.pressurizer.utils.client
+import me.alvr.pressurizer.domain.PlayerSummary
 
 internal fun Route.auth() = get("/login/auth") {
     val auth = call.request.checkLogin()
@@ -28,7 +28,7 @@ internal fun Route.auth() = get("/login/auth") {
         error("Cannot verify the login")
 
     if (Database.getUserById(auth.second).isEmpty()) {
-        val userInfo = gClient.get<PlayerSummary>(PLAYER_SUMMARY.format(config[ServerSpec.apikey], auth.second.id))
+        val userInfo = client.get<PlayerSummary>(PLAYER_SUMMARY.format(config[ServerSpec.apikey], auth.second.id))
         val countryCode = userInfo.response.players.first().countryCode
 
         Database.insertUser(auth.second, countryCode)
@@ -53,7 +53,7 @@ private fun ApplicationRequest.checkLogin(): Pair<Boolean, SteamId> {
     }
 
     val isValid = runBlocking {
-        gClient.post<String>(OPENID) {
+        client.post<String>(OPENID) {
             contentType(ContentType.Application.Json)
             params.forEach { k, v ->
                 parameter(k, v.orEmpty())
