@@ -9,4 +9,5 @@ import io.ktor.routing.Route
  */
 fun Route.gamesRoutes() {
     fetchGames()
+    updateGame()
 }
