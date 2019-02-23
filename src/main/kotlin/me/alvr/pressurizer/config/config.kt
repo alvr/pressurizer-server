@@ -1,6 +1,7 @@
 package me.alvr.pressurizer.config
 
 import com.uchuhimo.konf.Config
+import java.io.File
 
 /**
  * This variable contains all the configuration. First reads from the *resource* file **pressurizer.conf** all the
@@ -27,6 +28,9 @@ val config = Config {
     addSpec(DatabaseSpec)
 }
     .from.hocon.resource("pressurizer.conf")
-    .from.hocon.file("pressurizer.conf")
+    .apply {
+        if (File("pressurizer.conf").exists())
+            from.hocon.file("pressurizer.conf")
+    }
     .from.env()
     .from.systemProperties()

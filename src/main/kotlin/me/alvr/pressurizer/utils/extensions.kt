@@ -15,6 +15,10 @@ fun String.getGameCost(): BigDecimal {
         .toBigDecimal()
 }
 
+fun Iterable<BigDecimal>.sum(): BigDecimal = this.fold(BigDecimal.ZERO, BigDecimal::add)
+
+fun Iterable<BigDecimal>.average(): BigDecimal = this.sum() / this.count().toBigDecimal()
+
 fun Float.round() = kotlin.math.round(this * 100) / 100
 
 fun BigDecimal.round(): BigDecimal = setScale(2, BigDecimal.ROUND_HALF_EVEN)

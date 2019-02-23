@@ -14,8 +14,12 @@ import me.alvr.pressurizer.database.tables.UsersTable
 import me.alvr.pressurizer.database.tables.VersionTable
 import me.alvr.pressurizer.domain.Game
 import me.alvr.pressurizer.domain.SteamId
+import me.alvr.pressurizer.domain.mappers.UserGameMapper
 import me.alvr.pressurizer.domain.mappers.UserMapper
+import me.alvr.pressurizer.utils.average
+import me.alvr.pressurizer.utils.sum
 import org.jetbrains.exposed.sql.SchemaUtils.createMissingTablesAndColumns
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.select
@@ -25,6 +29,7 @@ import org.jetbrains.exposed.sql.update
 import java.math.BigDecimal
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.round
 import org.jetbrains.exposed.sql.Database as Exposed
 
 /**
@@ -83,6 +88,7 @@ object Database {
         }
     }
 
+    // USERS QUERIES
     suspend fun insertUser(user: SteamId, countryCode: String? = null) = withContext(dispatcher) {
         transaction {
             UsersTable.insertIgnore {
@@ -99,6 +105,7 @@ object Database {
         }
     }
 
+    // GAMES QUERIES
     suspend fun insertGame(gameId: String, gameName: String) = withContext(dispatcher) {
         transaction {
             GamesTable.insertIgnore {
@@ -112,6 +119,44 @@ object Database {
         transaction {
             UserGamesTable.select { UserGamesTable.steamId eq user.id }
                 .map { it[UserGamesTable.appId] }
+        }
+    }
+
+    // USERGAMES QUERIES
+    suspend fun getGamesCompleteByUser(user: SteamId) = withContext(dispatcher) {
+        transaction {
+            val games = (UserGamesTable innerJoin GamesTable)
+                .select { UserGamesTable.steamId eq user.id }
+                .orderBy(UserGamesTable.timePlayed, SortOrder.DESC)
+                .mapNotNull { UserGameMapper.map(it) }
+
+            val totalCost = games.mapNotNull { it.cost }
+            val totalTime = games.mapNotNull { it.timePlayed }
+            val totalCostSum = totalCost.sum()
+            val totalTimeSum = totalTime.sum()
+
+            val stats = when {
+                games.isNotEmpty() -> mapOf<String, Number>(
+                    "totalGames" to games.size,
+                    "totalCost" to totalCostSum,
+                    "totalTime" to totalTimeSum,
+                    "avgCost" to totalCost.average(),
+                    "avgTime" to round(totalTime.average()),
+                    "avgCostTime" to totalCostSum / totalTimeSum.toBigDecimal()
+                )
+                else -> emptyMap()
+            }
+
+            val country = when {
+                games.isNotEmpty() -> UsersTable
+                    .slice(UsersTable.country)
+                    .select { UsersTable.steamId eq user.id }
+                    .map { it[UsersTable.country] }
+                    .first()
+                else -> ""
+            }
+
+            mapOf("games" to games, "stats" to stats, "country" to country)
         }
     }
 

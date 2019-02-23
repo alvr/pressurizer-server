@@ -8,6 +8,7 @@ import io.ktor.routing.Route
  * @receiver Route
  */
 fun Route.gamesRoutes() {
+    allGames()
     fetchGames()
     updateGame()
 }
