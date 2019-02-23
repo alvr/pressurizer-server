@@ -10,6 +10,7 @@ object Versions {
     const val KOTLIN = "1.3.21"
     const val EXPOSED = "0.12.2"
     const val HIKARI = "3.3.1"
+    const val JSOUP = "1.11.3"
     const val KOTLINTEST = "3.2.1"
     const val KTOR = "1.1.2"
     const val LOGBACK = "1.2.3"
@@ -59,6 +60,8 @@ dependencies {
     implementation("org.jetbrains.exposed", "exposed", Versions.EXPOSED)
     implementation("org.postgresql", "postgresql", Versions.POSTGRES)
     implementation("com.zaxxer", "HikariCP", Versions.HIKARI)
+
+    implementation("org.jsoup", "jsoup", Versions.JSOUP)
 
     implementation("ch.qos.logback", "logback-classic", Versions.LOGBACK)
 

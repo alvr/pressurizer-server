@@ -12,13 +12,17 @@ import me.alvr.pressurizer.database.tables.GamesTable
 import me.alvr.pressurizer.database.tables.UserGamesTable
 import me.alvr.pressurizer.database.tables.UsersTable
 import me.alvr.pressurizer.database.tables.VersionTable
+import me.alvr.pressurizer.domain.Game
 import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.domain.mappers.UserMapper
 import org.jetbrains.exposed.sql.SchemaUtils.createMissingTablesAndColumns
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
+import java.math.BigDecimal
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 import org.jetbrains.exposed.sql.Database as Exposed
@@ -90,8 +94,49 @@ object Database {
 
     suspend fun getUserById(user: SteamId) = withContext(dispatcher) {
         transaction {
-            UsersTable.select { UsersTable.steamId eq user.id }.mapNotNull {
-                UserMapper().map(it)
+            UsersTable.select { UsersTable.steamId eq user.id }
+                .mapNotNull { UserMapper.map(it) }
+        }
+    }
+
+    suspend fun insertGame(gameId: String, gameName: String) = withContext(dispatcher) {
+        transaction {
+            GamesTable.insertIgnore {
+                it[appId] = gameId
+                it[title] = gameName
+            }
+        }
+    }
+
+    suspend fun getGamesByUser(user: SteamId) = withContext(dispatcher) {
+        transaction {
+            UserGamesTable.select { UserGamesTable.steamId eq user.id }
+                .map { it[UserGamesTable.appId] }
+        }
+    }
+
+    suspend fun insertUserGame(user: SteamId, gameId: String, price: BigDecimal, time: Int) = withContext(dispatcher) {
+        transaction {
+            UserGamesTable.insertIgnore {
+                it[steamId] = user.id
+                it[appId] = gameId
+                it[cost] = price
+                it[timePlayed] = time
+            }
+        }
+    }
+
+    suspend fun updateUserGame(user: SteamId, game: Game) = withContext(dispatcher) {
+        transaction {
+            UserGamesTable.update({ (UserGamesTable.steamId eq user.id) and (UserGamesTable.appId eq game.appId) }) { new ->
+                game.cost?.let {
+                    if (it < BigDecimal.ZERO)
+                        new[cost] = BigDecimal.ZERO
+                    else
+                        new[cost] = it
+                }
+                game.timePlayed?.let { new[timePlayed] = it }
+                game.finished?.let { new[finished] = it }
             }
         }
     }

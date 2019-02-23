@@ -3,7 +3,6 @@ package me.alvr.pressurizer.domain.mappers
 import me.alvr.pressurizer.database.tables.GamesTable
 import me.alvr.pressurizer.database.tables.UserGamesTable
 import me.alvr.pressurizer.domain.Game
-import me.alvr.pressurizer.utils.round
 import org.jetbrains.exposed.sql.ResultRow
 import java.math.RoundingMode
 
