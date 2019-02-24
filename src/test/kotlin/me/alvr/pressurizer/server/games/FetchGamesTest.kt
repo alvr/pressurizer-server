@@ -1,6 +1,7 @@
 package me.alvr.pressurizer.server.games
 
 import io.kotlintest.Spec
+import io.kotlintest.assertSoftly
 import io.kotlintest.matchers.string.shouldContain
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.ExpectSpec
@@ -68,6 +69,21 @@ class FetchGamesTest : ExpectSpec() {
                 val userGames = Database.getGamesByUser(user)
 
                 userGames.size shouldBe 4
+            }
+
+            expect("user without games on steam") {
+                val jwt = AuthJWT.sign(SteamId("76561198926567646"))
+
+                withTestPressurizer {
+                    handleRequest(HttpMethod.Post, "/fetchGames") {
+                        addHeader("Authorization", "Bearer $jwt")
+                    }.apply {
+                       assertSoftly {
+                           response.status() shouldBe HttpStatusCode.BadRequest
+                           response.content shouldContain "Can\\u0027t find any games on this account."
+                       }
+                    }
+                }
             }
         }
 
