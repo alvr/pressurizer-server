@@ -1,6 +1,7 @@
 package me.alvr.pressurizer.server.games
 
 import io.kotlintest.Spec
+import io.kotlintest.matchers.string.shouldContain
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.ExpectSpec
 import io.ktor.http.HttpMethod
@@ -24,10 +25,7 @@ class FetchGamesTest : ExpectSpec() {
             listOf(
                 UsersTable.tableName,
                 GamesTable.tableName,
-                UserGamesTable.tableName,
-                CountriesTable.tableName,
-                CurrenciesTable.tableName,
-                VersionTable.tableName
+                UserGamesTable.tableName
             ).forEach {
                 exec("TRUNCATE TABLE $it CASCADE;")
             }
@@ -47,7 +45,8 @@ class FetchGamesTest : ExpectSpec() {
                     handleRequest(HttpMethod.Post, "/fetchGames") {
                         addHeader("Authorization", "Bearer $token")
                     }.apply {
-                        response.content shouldBe "{\"new\":4,\"updated\":0}"
+                        response.content shouldContain "\"new\":4"
+                        response.content shouldContain "\"updated\":0"
                     }
                 }
 
@@ -61,7 +60,8 @@ class FetchGamesTest : ExpectSpec() {
                     handleRequest(HttpMethod.Post, "/fetchGames") {
                         addHeader("Authorization", "Bearer $token")
                     }.apply {
-                        response.content shouldBe "{\"new\":0,\"updated\":4}"
+                        response.content shouldContain "\"new\":0"
+                        response.content shouldContain "\"updated\":4"
                     }
                 }
 

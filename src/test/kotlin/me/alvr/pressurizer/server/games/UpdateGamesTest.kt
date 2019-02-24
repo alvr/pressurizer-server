@@ -36,10 +36,7 @@ class UpdateGamesTest : ExpectSpec() {
             listOf(
                 UsersTable.tableName,
                 GamesTable.tableName,
-                UserGamesTable.tableName,
-                CountriesTable.tableName,
-                CurrenciesTable.tableName,
-                VersionTable.tableName
+                UserGamesTable.tableName
             ).forEach {
                 exec("TRUNCATE TABLE $it CASCADE;")
             }

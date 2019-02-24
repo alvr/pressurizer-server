@@ -23,7 +23,7 @@ class AllGamesTest : ExpectSpec({
         }
 
         expect("user with no games") {
-            val user = SteamId("this_user_has_no_games")
+            val user = SteamId("user_without_games")
             val token = AuthJWT.sign(user)
 
             Database.insertUser(user)

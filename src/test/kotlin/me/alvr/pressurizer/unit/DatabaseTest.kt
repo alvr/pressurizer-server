@@ -6,6 +6,7 @@ import io.kotlintest.inspectors.forAll
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
+import io.kotlintest.shouldThrow
 import io.kotlintest.specs.ExpectSpec
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -30,12 +31,10 @@ import org.jetbrains.exposed.sql.transactions.transaction
 class DatabaseTest : ExpectSpec() {
     override fun afterSpec(spec: Spec) {
         transaction {
-            listOf(UsersTable.tableName,
+            listOf(
+                UsersTable.tableName,
                 GamesTable.tableName,
-                UserGamesTable.tableName,
-                CountriesTable.tableName,
-                CurrenciesTable.tableName,
-                VersionTable.tableName
+                UserGamesTable.tableName
             ).forEach {
                 exec("TRUNCATE TABLE $it CASCADE;")
             }
@@ -65,9 +64,8 @@ class DatabaseTest : ExpectSpec() {
                 val user = Database.getUserById(userId)
 
                 assertSoftly {
-                    user.size shouldBe 1
-                    user.single().id shouldBe userId
-                    user.single().country shouldBe null
+                    user.id shouldBe userId
+                    user.country.code shouldBe "US"
                 }
             }
 
@@ -78,9 +76,8 @@ class DatabaseTest : ExpectSpec() {
                 val user = Database.getUserById(userId)
 
                 assertSoftly {
-                    user.size shouldBe 1
-                    user.single().id shouldBe userId
-                    user.single().country?.let {
+                    user.id shouldBe userId
+                    user.country.let {
                         it shouldNotBe null
                         it.code shouldBe "ES"
                     }
@@ -90,10 +87,8 @@ class DatabaseTest : ExpectSpec() {
             expect("inexistant user") {
                 val userId = SteamId("invalid_user_id")
 
-                val user = Database.getUserById(userId)
-
-                assertSoftly {
-                    user.isNullOrEmpty() shouldBe true
+                shouldThrow<NoSuchElementException> {
+                    Database.getUserById(userId)
                 }
             }
         }
