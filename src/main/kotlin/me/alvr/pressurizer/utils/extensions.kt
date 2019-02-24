@@ -1,17 +1,25 @@
 package me.alvr.pressurizer.utils
 
+import me.alvr.pressurizer.domain.Currency
 import org.jsoup.Jsoup
 import java.math.BigDecimal
 
-fun String.getGameCost(): BigDecimal {
+fun String.getGameCost(currency: Currency): BigDecimal {
     val document = Jsoup.parse(this)
 
-    val costWithComma = document.select("div.game_purchase_price").first()?.text()?.trim()
+    val price = document.select("div.game_purchase_price").first()?.text()?.trim()
         ?: document.select("div.discount_original_price").first()?.text()?.trim()
         ?: "0"
 
-    return costWithComma.replace(',', '.')
-        .replace(Regex("[^\\d.]+"), "")
+    return price
+        .removePrefix(currency.symbol)
+        .removePrefix(currency.code)            // In some cases, Steam adds the currency's code.
+        .removeSuffix(currency.symbol)
+        .removeSuffix(currency.code)
+        .replace("--", "00") // CHF doesn't use .00, instead it uses .-- for decimals.
+        .trim()
+        .replace(currency.thousand.toString(), "")
+        .replace(currency.decimal, '.')
         .toBigDecimal()
 }
 

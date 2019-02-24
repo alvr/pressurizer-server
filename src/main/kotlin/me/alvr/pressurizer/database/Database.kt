@@ -14,6 +14,7 @@ import me.alvr.pressurizer.database.tables.UsersTable
 import me.alvr.pressurizer.database.tables.VersionTable
 import me.alvr.pressurizer.domain.Game
 import me.alvr.pressurizer.domain.SteamId
+import me.alvr.pressurizer.domain.mappers.CurrencyMapper
 import me.alvr.pressurizer.domain.mappers.UserGameMapper
 import me.alvr.pressurizer.domain.mappers.UserMapper
 import me.alvr.pressurizer.utils.average
@@ -89,7 +90,7 @@ object Database {
     }
 
     // USERS QUERIES
-    suspend fun insertUser(user: SteamId, countryCode: String? = null) = withContext(dispatcher) {
+    suspend fun insertUser(user: SteamId, countryCode: String? = "US") = withContext(dispatcher) {
         transaction {
             UsersTable.insertIgnore {
                 it[steamId] = user.id
@@ -184,6 +185,19 @@ object Database {
                 game.timePlayed?.let { new[timePlayed] = it }
                 game.finished?.let { new[finished] = it }
             }
+        }
+    }
+
+    // CURRENCY QUERIES
+    suspend fun getCurrencyInfo(countryCode: String) = withContext(dispatcher) {
+        transaction {
+            (CurrenciesTable innerJoin CountriesTable)
+                .slice(CurrenciesTable.code, CurrenciesTable.symbol, CurrenciesTable.thousand, CurrenciesTable.decimal)
+                .select { (CountriesTable.code eq countryCode) and
+                    (CurrenciesTable.code eq CountriesTable.currency)
+            }
+                .map { CurrencyMapper.map(it) }
+                .single()
         }
     }
 }

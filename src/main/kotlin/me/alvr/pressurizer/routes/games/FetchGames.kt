@@ -7,8 +7,6 @@ import io.ktor.client.request.get
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import io.ktor.routing.post
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import me.alvr.pressurizer.config.ServerSpec
@@ -33,6 +31,9 @@ internal fun Route.fetchGames() = authenticate {
             val newGames = ownedGames.size - inDatabase.size
             val updatedGames = ownedGames.size - newGames
 
+            val country = Database.getUserById(user).single().country!!.code
+            val currency = Database.getCurrencyInfo(country)
+
             chunks.map { chunk ->
                 launch {
                     chunk.forEach { game ->
@@ -40,7 +41,7 @@ internal fun Route.fetchGames() = authenticate {
                             Database.updateUserGame(user, Game(game.appId, timePlayed = game.playtime))
                         } else {
                             Database.insertGame(game.appId, game.title)
-                            val cost = client.get<String>(APPID_DETAILS.format(game.appId)).getGameCost()
+                            val cost = client.get<String>(APPID_DETAILS.format(game.appId, country)).getGameCost(currency)
                             Database.insertUserGame(user, game.appId, cost, game.playtime)
                         }
                     }
