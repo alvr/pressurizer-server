@@ -36,7 +36,7 @@ class FetchGamesTest : ExpectSpec() {
 
     init {
         context("fetch games") {
-            val user = SteamId("76561198044411569")
+            val user = SteamId("76561198319326905")
             val token = AuthJWT.sign(user)
 
             Database.insertUser(user, null)
@@ -46,14 +46,14 @@ class FetchGamesTest : ExpectSpec() {
                     handleRequest(HttpMethod.Post, "/fetchGames") {
                         addHeader("Authorization", "Bearer $token")
                     }.apply {
-                        response.content shouldContain "\"new\":4"
+                        response.content shouldContain "\"new\":70"
                         response.content shouldContain "\"updated\":0"
                     }
                 }
 
                 val userGames = Database.getGamesByUser(user)
 
-                userGames.size shouldBe 4
+                userGames.size shouldBe 70
             }
 
             expect("update existing games") {
@@ -62,17 +62,19 @@ class FetchGamesTest : ExpectSpec() {
                         addHeader("Authorization", "Bearer $token")
                     }.apply {
                         response.content shouldContain "\"new\":0"
-                        response.content shouldContain "\"updated\":4"
+                        response.content shouldContain "\"updated\":70"
                     }
                 }
 
                 val userGames = Database.getGamesByUser(user)
 
-                userGames.size shouldBe 4
+                userGames.size shouldBe 70
             }
 
             expect("user without games on steam") {
-                val jwt = AuthJWT.sign(SteamId("76561198926567646"))
+                val u = SteamId("76561198926567646")
+                val jwt = AuthJWT.sign(u)
+                Database.insertUser(u)
 
                 withTestPressurizer {
                     handleRequest(HttpMethod.Post, "/fetchGames") {

@@ -28,7 +28,7 @@ import me.alvr.pressurizer.utils.round
 import org.jetbrains.exposed.sql.transactions.transaction
 
 class UpdateGamesTest : ExpectSpec() {
-    private val user = SteamId("76561198044411569")
+    private val user = SteamId("76561198319326905")
     private val token = AuthJWT.sign(user)
 
     override fun afterSpec(spec: Spec) {
@@ -45,11 +45,13 @@ class UpdateGamesTest : ExpectSpec() {
     }
 
     override fun beforeTest(testCase: TestCase) {
-        runBlocking { Database.insertUser(user, null) }
+        runBlocking {
+            Database.insertUser(user, null)
 
-        withTestPressurizer {
-            handleRequest(HttpMethod.Post, "/fetchGames") {
-                addHeader("Authorization", "Bearer $token")
+            withTestPressurizer {
+                handleRequest(HttpMethod.Post, "/fetchGames") {
+                    addHeader("Authorization", "Bearer $token")
+                }
             }
         }
     }

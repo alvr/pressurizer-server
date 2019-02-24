@@ -12,7 +12,7 @@ object Versions {
     const val HIKARI = "3.3.1"
     const val JSOUP = "1.11.3"
     const val KOTLINTEST = "3.2.1"
-    const val KTOR = "1.1.2"
+    const val KTOR = "1.1.3"
     const val LOGBACK = "1.2.3"
     const val POSTGRES = "42.2.5"
 }
