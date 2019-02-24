@@ -7,8 +7,6 @@ data class OwnedGames(
     val response: Response
 ) {
     data class Response(
-        @SerializedName("game_count")
-        val gameCount: Int,
         @SerializedName("games")
         val games: List<Game>
     ) {
