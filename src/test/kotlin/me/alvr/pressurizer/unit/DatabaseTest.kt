@@ -26,10 +26,24 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import kotlin.math.round
 
 class DatabaseTest : ExpectSpec() {
     override fun afterSpec(spec: Spec) {
+        transaction {
+            listOf(UsersTable.tableName,
+                GamesTable.tableName,
+                UserGamesTable.tableName,
+                CountriesTable.tableName,
+                CurrenciesTable.tableName,
+                VersionTable.tableName
+            ).forEach {
+                exec("TRUNCATE TABLE $it CASCADE;")
+            }
+            closeExecutedStatements()
+        }
+    }
+
+    override fun afterProject() {
         transaction {
             SchemaUtils.drop(
                 UsersTable,
