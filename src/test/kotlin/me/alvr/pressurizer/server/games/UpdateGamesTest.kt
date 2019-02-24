@@ -9,6 +9,7 @@ import io.kotlintest.specs.ExpectSpec
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.setBody
 import kotlinx.coroutines.runBlocking
@@ -187,6 +188,18 @@ class UpdateGamesTest : ExpectSpec() {
                     val gameUpdated = games.find { it.appId == updateCost.appId }
 
                     gameUpdated?.cost shouldBe 9999.toBigDecimal().round()
+                }
+            }
+        }
+
+        context("invalid token") {
+            expect("return error 401") {
+                withTestPressurizer {
+                    handleRequest(HttpMethod.Patch, "/updateGame") {
+                        addHeader("Authorization", "Bearer InvalidToken")
+                    }.apply {
+                        response.status() shouldBe HttpStatusCode.Unauthorized
+                    }
                 }
             }
         }

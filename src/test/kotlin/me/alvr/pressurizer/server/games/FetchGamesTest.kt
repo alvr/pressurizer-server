@@ -4,6 +4,7 @@ import io.kotlintest.Spec
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.ExpectSpec
 import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.handleRequest
 import me.alvr.pressurizer.auth.AuthJWT
 import me.alvr.pressurizer.database.Database
@@ -67,6 +68,18 @@ class FetchGamesTest : ExpectSpec() {
                 val userGames = Database.getGamesByUser(user)
 
                 userGames.size shouldBe 4
+            }
+        }
+
+        context("invalid token") {
+            expect("return error 401") {
+                withTestPressurizer {
+                    handleRequest(HttpMethod.Post, "/fetchGames") {
+                        addHeader("Authorization", "Bearer InvalidToken")
+                    }.apply {
+                        response.status() shouldBe HttpStatusCode.Unauthorized
+                    }
+                }
             }
         }
     }
