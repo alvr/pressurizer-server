@@ -27,7 +27,9 @@ internal fun Route.auth() = get("/login/auth") {
     if (!auth.first || auth.second.id.isEmpty())
         error("Cannot verify the login")
 
-    if (Database.getUserById(auth.second).isEmpty()) {
+    try {
+        Database.getUserById(auth.second)
+    } catch (_: NoSuchElementException) {
         val userInfo = client.get<PlayerSummary>(PLAYER_SUMMARY.format(config[ServerSpec.apikey], auth.second.id))
         val countryCode = userInfo.response.players.first().countryCode
 

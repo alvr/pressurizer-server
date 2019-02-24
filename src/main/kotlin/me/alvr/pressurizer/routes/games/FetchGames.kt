@@ -19,19 +19,26 @@ import me.alvr.pressurizer.utils.APPID_DETAILS
 import me.alvr.pressurizer.utils.OWNED_GAMES
 import me.alvr.pressurizer.utils.client
 import me.alvr.pressurizer.utils.getGameCost
+import java.lang.NullPointerException
 
 internal fun Route.fetchGames() = authenticate {
     post("/fetchGames") {
         call.principal<SteamId>()?.let { user ->
             val ownedGames = client.get<OwnedGames>(OWNED_GAMES.format(config[ServerSpec.apikey], user.id)).response.games
+
             val inDatabase = Database.getGamesByUser(user)
 
-            val chunks = ownedGames.chunked(ownedGames.size / 4)
+            val chunks: List<List<OwnedGames.Response.Game>>
+            try {
+                chunks = ownedGames.chunked(ownedGames.size / 4)
+            } catch (_: NullPointerException) {
+                error("Can't find any games on this account.")
+            }
 
             val newGames = ownedGames.size - inDatabase.size
             val updatedGames = ownedGames.size - newGames
 
-            val country = Database.getUserById(user).single().country!!.code
+            val country = Database.getUserById(user).country.code
             val currency = Database.getCurrencyInfo(country)
 
             chunks.map { chunk ->

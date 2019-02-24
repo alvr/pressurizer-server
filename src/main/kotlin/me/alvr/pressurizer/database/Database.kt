@@ -92,9 +92,9 @@ object Database {
     // USERS QUERIES
     suspend fun insertUser(user: SteamId, countryCode: String? = "US") = withContext(dispatcher) {
         transaction {
-            UsersTable.insertIgnore {
-                it[steamId] = user.id
-                it[country] = countryCode
+            UsersTable.insertIgnore { u ->
+                u[steamId] = user.id
+                countryCode?.let { u[country] = it }
             }
         }
     }
@@ -103,6 +103,7 @@ object Database {
         transaction {
             UsersTable.select { UsersTable.steamId eq user.id }
                 .mapNotNull { UserMapper.map(it) }
+                .first()
         }
     }
 
@@ -195,9 +196,9 @@ object Database {
                 .slice(CurrenciesTable.code, CurrenciesTable.symbol, CurrenciesTable.thousand, CurrenciesTable.decimal)
                 .select { (CountriesTable.code eq countryCode) and
                     (CurrenciesTable.code eq CountriesTable.currency)
-            }
+                }
                 .map { CurrencyMapper.map(it) }
-                .single()
+                .first()
         }
     }
 }
