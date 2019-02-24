@@ -13,8 +13,8 @@ import org.jetbrains.exposed.sql.Table
  */
 object UserGamesTable : Table("user_games") {
     val steamId = (varchar("steam_id", 20) references UsersTable.steamId).index()
-    val appId = varchar("app_id", 8) references GamesTable.appId
-    val cost = decimal("cost", 6, 2)
+    val appId = varchar("app_id", 10) references GamesTable.appId
+    val cost = decimal("cost", 12, 2)
     val timePlayed = integer("time_played")
     val finished = bool("finished").default(false)
 }
