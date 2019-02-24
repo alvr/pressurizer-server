@@ -12,15 +12,25 @@ import me.alvr.pressurizer.database.tables.GamesTable
 import me.alvr.pressurizer.database.tables.UserGamesTable
 import me.alvr.pressurizer.database.tables.UsersTable
 import me.alvr.pressurizer.database.tables.VersionTable
+import me.alvr.pressurizer.domain.Game
 import me.alvr.pressurizer.domain.SteamId
+import me.alvr.pressurizer.domain.mappers.CurrencyMapper
+import me.alvr.pressurizer.domain.mappers.UserGameMapper
 import me.alvr.pressurizer.domain.mappers.UserMapper
+import me.alvr.pressurizer.utils.average
+import me.alvr.pressurizer.utils.sum
 import org.jetbrains.exposed.sql.SchemaUtils.createMissingTablesAndColumns
+import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
+import java.math.BigDecimal
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.round
 import org.jetbrains.exposed.sql.Database as Exposed
 
 /**
@@ -79,20 +89,116 @@ object Database {
         }
     }
 
-    suspend fun insertUser(user: SteamId, countryCode: String? = null) = withContext(dispatcher) {
+    // USERS QUERIES
+    suspend fun insertUser(user: SteamId, countryCode: String? = "US") = withContext(dispatcher) {
         transaction {
-            UsersTable.insertIgnore {
-                it[steamId] = user.id
-                it[country] = countryCode
+            UsersTable.insertIgnore { u ->
+                u[steamId] = user.id
+                countryCode?.let { u[country] = it }
             }
         }
     }
 
     suspend fun getUserById(user: SteamId) = withContext(dispatcher) {
         transaction {
-            UsersTable.select { UsersTable.steamId eq user.id }.mapNotNull {
-                UserMapper().map(it)
+            UsersTable.select { UsersTable.steamId eq user.id }
+                .mapNotNull { UserMapper.map(it) }
+                .first()
+        }
+    }
+
+    // GAMES QUERIES
+    suspend fun insertGame(gameId: String, gameName: String) = withContext(dispatcher) {
+        transaction {
+            GamesTable.insertIgnore {
+                it[appId] = gameId
+                it[title] = gameName
             }
+        }
+    }
+
+    suspend fun getGamesByUser(user: SteamId) = withContext(dispatcher) {
+        transaction {
+            UserGamesTable.select { UserGamesTable.steamId eq user.id }
+                .map { it[UserGamesTable.appId] }
+        }
+    }
+
+    // USERGAMES QUERIES
+    suspend fun getGamesCompleteByUser(user: SteamId) = withContext(dispatcher) {
+        transaction {
+            val games = (UserGamesTable innerJoin GamesTable)
+                .select { UserGamesTable.steamId eq user.id }
+                .orderBy(UserGamesTable.timePlayed, SortOrder.DESC)
+                .mapNotNull { UserGameMapper.map(it) }
+
+            val totalCost = games.mapNotNull { it.cost }
+            val totalTime = games.mapNotNull { it.timePlayed }
+            val totalCostSum = totalCost.sum()
+            val totalTimeSum = totalTime.sum()
+
+            val stats = when {
+                games.isNotEmpty() -> mapOf<String, Number>(
+                    "totalGames" to games.size,
+                    "totalCost" to totalCostSum,
+                    "totalTime" to totalTimeSum,
+                    "avgCost" to totalCost.average(),
+                    "avgTime" to round(totalTime.average()),
+                    "avgCostTime" to totalCostSum / totalTimeSum.toBigDecimal()
+                )
+                else -> emptyMap()
+            }
+
+            val country = when {
+                games.isNotEmpty() -> UsersTable
+                    .slice(UsersTable.country)
+                    .select { UsersTable.steamId eq user.id }
+                    .map { it[UsersTable.country] }
+                    .first()
+                else -> ""
+            }
+
+            mapOf("games" to games, "stats" to stats, "country" to country)
+        }
+    }
+
+    suspend fun insertUserGame(user: SteamId, gameId: String, price: BigDecimal, time: Int) = withContext(dispatcher) {
+        transaction {
+            UserGamesTable.insertIgnore {
+                it[steamId] = user.id
+                it[appId] = gameId
+                it[cost] = price
+                it[timePlayed] = time
+            }
+        }
+    }
+
+    suspend fun updateUserGame(user: SteamId, game: Game) = withContext(dispatcher) {
+        transaction {
+            UserGamesTable.update({ (UserGamesTable.steamId eq user.id) and (UserGamesTable.appId eq game.appId) }) { new ->
+                game.cost?.let {
+                    when {
+                        it < BigDecimal.ZERO -> new[cost] = BigDecimal.ZERO
+                        it > 9999.toBigDecimal() -> new[cost] = 9999.toBigDecimal()
+                        else -> new[cost] = it
+                    }
+                }
+                game.timePlayed?.let { new[timePlayed] = it }
+                game.finished?.let { new[finished] = it }
+            }
+        }
+    }
+
+    // CURRENCY QUERIES
+    suspend fun getCurrencyInfo(countryCode: String) = withContext(dispatcher) {
+        transaction {
+            (CurrenciesTable innerJoin CountriesTable)
+                .slice(CurrenciesTable.code, CurrenciesTable.symbol, CurrenciesTable.thousand, CurrenciesTable.decimal)
+                .select { (CountriesTable.code eq countryCode) and
+                    (CurrenciesTable.code eq CountriesTable.currency)
+                }
+                .map { CurrencyMapper.map(it) }
+                .first()
         }
     }
 }

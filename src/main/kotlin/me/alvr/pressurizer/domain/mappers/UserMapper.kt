@@ -6,11 +6,12 @@ import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.domain.User
 import org.jetbrains.exposed.sql.ResultRow
 
-class UserMapper : Mapper<ResultRow, User>() {
+object UserMapper : Mapper<ResultRow, User>() {
+
     override fun transform(model: ResultRow): User {
         return User(
             id = SteamId(model[UsersTable.steamId]),
-            country = model[UsersTable.country]?.let { c -> Country(c) },
+            country = Country(model[UsersTable.country]),
             updatedAt = model[UsersTable.updatedAt]
         )
     }
