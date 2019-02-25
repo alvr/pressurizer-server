@@ -14,6 +14,7 @@ object Versions {
     const val KOTLINTEST = "3.2.1"
     const val KTOR = "1.1.3"
     const val LOGBACK = "1.2.3"
+    const val MOCKSERVER = "5.5.1"
     const val POSTGRES = "42.2.5"
 }
 
@@ -66,6 +67,7 @@ dependencies {
     implementation("ch.qos.logback", "logback-classic", Versions.LOGBACK)
 
     testImplementation("io.kotlintest", "kotlintest-runner-junit5", Versions.KOTLINTEST)
+    testImplementation("org.mock-server", "mockserver-netty", Versions.MOCKSERVER)
 
     codacy("com.github.codacy:codacy-coverage-reporter:-SNAPSHOT")
 }
@@ -79,6 +81,10 @@ jacoco {
 }
 
 tasks {
+    withType<JavaExec> {
+        environment("OPENID","https://steamcommunity.com/openid/login")
+    }
+
     withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "1.8"
     }
@@ -91,6 +97,8 @@ tasks {
 
     withType<Test> {
         useJUnitPlatform()
+        environment("OPENID","http://localhost:6969")
+
         testlogger {
             theme = ThemeType.MOCHA
         }

@@ -27,7 +27,7 @@ class LoginTest : ExpectSpec({
                         "openid.return_to" to "$scheme://$host:$port/login/auth"
                     )
 
-                    "$OPENID?${params.formUrlEncode()}" shouldBe response.headers["Location"]
+                    response.headers["Location"] shouldBe "$OPENID?${params.formUrlEncode()}"
                 }
             }
         }
