@@ -1,4 +1,4 @@
-package me.alvr.pressurizer.server.auth
+package me.alvr.pressurizer.server.users
 
 import io.kotlintest.Spec
 import io.kotlintest.assertSoftly

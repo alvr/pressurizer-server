@@ -1,4 +1,4 @@
-package me.alvr.pressurizer.routes.auth
+package me.alvr.pressurizer.routes.users
 
 import com.auth0.jwt.exceptions.JWTVerificationException
 import io.ktor.application.call

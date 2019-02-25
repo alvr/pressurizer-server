@@ -1,4 +1,4 @@
-package me.alvr.pressurizer.routes.auth
+package me.alvr.pressurizer.routes.users
 
 import io.ktor.routing.Route
 
@@ -7,7 +7,7 @@ import io.ktor.routing.Route
  *
  * @receiver Route
  */
-fun Route.authRoutes() {
+fun Route.usersRoutes() {
     login()
     auth()
     token()

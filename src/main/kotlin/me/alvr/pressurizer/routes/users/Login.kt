@@ -1,4 +1,4 @@
-package me.alvr.pressurizer.routes.auth
+package me.alvr.pressurizer.routes.users
 
 import io.ktor.application.call
 import io.ktor.features.origin

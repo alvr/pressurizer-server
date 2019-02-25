@@ -24,8 +24,8 @@ import me.alvr.pressurizer.auth.AuthJWT
 import me.alvr.pressurizer.config.ServerSpec
 import me.alvr.pressurizer.config.config
 import me.alvr.pressurizer.domain.SteamId
-import me.alvr.pressurizer.routes.auth.authRoutes
 import me.alvr.pressurizer.routes.games.gamesRoutes
+import me.alvr.pressurizer.routes.users.usersRoutes
 import me.alvr.pressurizer.utils.StatusPageError
 
 /**
@@ -77,7 +77,7 @@ fun Application.pressurizer() {
         }
     }
     routing {
-        authRoutes()
+        usersRoutes()
         gamesRoutes()
 
         get("/") {

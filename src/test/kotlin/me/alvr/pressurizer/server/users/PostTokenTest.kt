@@ -1,4 +1,4 @@
-package me.alvr.pressurizer.server.auth
+package me.alvr.pressurizer.server.users
 
 import com.google.gson.Gson
 import io.kotlintest.assertSoftly
