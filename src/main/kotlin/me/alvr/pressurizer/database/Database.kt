@@ -28,6 +28,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.math.BigDecimal
+import java.time.Instant
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.round
@@ -104,6 +105,14 @@ object Database {
             UsersTable.select { UsersTable.steamId eq user.id }
                 .mapNotNull { UserMapper.map(it) }
                 .first()
+        }
+    }
+
+    suspend fun newUpdateAt(user: SteamId) = withContext(dispatcher) {
+        transaction {
+            UsersTable.update({ UsersTable.steamId eq user.id }) {
+                it[UsersTable.updatedAt] = Instant.now()
+            }
         }
     }
 

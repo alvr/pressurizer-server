@@ -19,46 +19,65 @@ import me.alvr.pressurizer.utils.APPID_DETAILS
 import me.alvr.pressurizer.utils.OWNED_GAMES
 import me.alvr.pressurizer.utils.client
 import me.alvr.pressurizer.utils.getGameCost
-import java.lang.NullPointerException
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 internal fun Route.fetchGames() = authenticate {
     post("/fetchGames") {
         call.principal<SteamId>()?.let { user ->
-            val ownedGames = client.get<OwnedGames>(OWNED_GAMES.format(config[ServerSpec.apikey], user.id)).response.games
+            val updatedAt = Database.getUserById(user).updatedAt
 
-            val inDatabase = Database.getGamesByUser(user)
+            val sixHours = Instant.now().minus(6L, ChronoUnit.HOURS)
+            val diff = ChronoUnit.MINUTES.between(sixHours, updatedAt)
 
-            val chunks: List<List<OwnedGames.Response.Game>>
-            try {
-                chunks = ownedGames.chunked(ownedGames.size / 4)
-            } catch (_: NullPointerException) {
-                error("Can't find any games on this account.")
-            }
+            if (diff <= 0) {
+                val ownedGames = client.get<OwnedGames>(OWNED_GAMES.format(config[ServerSpec.apikey], user.id)).response.games
 
-            val newGames = ownedGames.size - inDatabase.size
-            val updatedGames = ownedGames.size - newGames
+                val inDatabase = Database.getGamesByUser(user)
 
-            val country = Database.getUserById(user).country.code
-            val currency = Database.getCurrencyInfo(country)
+                val chunks: List<List<OwnedGames.Response.Game>>
+                try {
+                    chunks = ownedGames.chunked(ownedGames.size / 4)
+                } catch (_: NullPointerException) {
+                    error("Can't find any games on this account.")
+                }
 
-            chunks.map { chunk ->
-                launch {
-                    chunk.forEach { game ->
-                        if (game.appId in inDatabase) {
-                            Database.updateUserGame(user, Game(game.appId, timePlayed = game.playtime))
-                        } else {
-                            Database.insertGame(game.appId, game.title)
-                            val cost = client.get<String>(APPID_DETAILS.format(game.appId, country)).getGameCost(currency)
-                            Database.insertUserGame(user, game.appId, cost, game.playtime)
+                val newGames = ownedGames.size - inDatabase.size
+                val updatedGames = ownedGames.size - newGames
+
+                val country = Database.getUserById(user).country.code
+                val currency = Database.getCurrencyInfo(country)
+
+                chunks.map { chunk ->
+                    launch {
+                        chunk.forEach { game ->
+                            if (game.appId in inDatabase) {
+                                Database.updateUserGame(user, Game(game.appId, timePlayed = game.playtime))
+                            } else {
+                                Database.insertGame(game.appId, game.title)
+                                val cost = client.get<String>(APPID_DETAILS.format(game.appId, country)).getGameCost(currency)
+                                Database.insertUserGame(user, game.appId, cost, game.playtime)
+                            }
                         }
                     }
-                }
-            }.joinAll()
+                }.joinAll()
 
-            call.respond(mapOf(
-                "new" to newGames,
-                "updated" to updatedGames
-            ))
+                Database.newUpdateAt(user)
+
+                call.respond(
+                    mapOf(
+                        "new" to newGames,
+                        "updated" to updatedGames
+                    )
+                )
+            } else {
+                call.respond(
+                    mapOf(
+                        "hours" to diff / 60,
+                        "minutes" to diff % 60
+                    )
+                )
+            }
         }
     }
 }

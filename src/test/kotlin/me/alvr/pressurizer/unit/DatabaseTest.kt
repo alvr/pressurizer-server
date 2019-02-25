@@ -10,7 +10,6 @@ import io.kotlintest.shouldThrow
 import io.kotlintest.specs.ExpectSpec
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.database.Database
 import me.alvr.pressurizer.database.tables.CountriesTable
 import me.alvr.pressurizer.database.tables.CurrenciesTable
@@ -19,6 +18,7 @@ import me.alvr.pressurizer.database.tables.UserGamesTable
 import me.alvr.pressurizer.database.tables.UsersTable
 import me.alvr.pressurizer.database.tables.VersionTable
 import me.alvr.pressurizer.domain.Game
+import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.domain.mappers.GameMapper
 import me.alvr.pressurizer.domain.mappers.UserGameMapper
 import me.alvr.pressurizer.utils.round

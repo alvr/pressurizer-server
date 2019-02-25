@@ -12,14 +12,14 @@ import io.ktor.routing.Route
 import io.ktor.routing.get
 import kotlinx.coroutines.runBlocking
 import me.alvr.pressurizer.auth.AuthJWT
-import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.config.ServerSpec
 import me.alvr.pressurizer.config.config
 import me.alvr.pressurizer.database.Database
+import me.alvr.pressurizer.domain.PlayerSummary
+import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.utils.OPENID
 import me.alvr.pressurizer.utils.PLAYER_SUMMARY
 import me.alvr.pressurizer.utils.client
-import me.alvr.pressurizer.domain.PlayerSummary
 
 internal fun Route.auth() = get("/login/auth") {
     val auth = call.request.checkLogin()

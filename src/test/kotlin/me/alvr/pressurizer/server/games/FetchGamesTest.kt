@@ -10,15 +10,15 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.handleRequest
 import me.alvr.pressurizer.auth.AuthJWT
 import me.alvr.pressurizer.database.Database
-import me.alvr.pressurizer.database.tables.CountriesTable
-import me.alvr.pressurizer.database.tables.CurrenciesTable
 import me.alvr.pressurizer.database.tables.GamesTable
 import me.alvr.pressurizer.database.tables.UserGamesTable
 import me.alvr.pressurizer.database.tables.UsersTable
-import me.alvr.pressurizer.database.tables.VersionTable
 import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.server.withTestPressurizer
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 class FetchGamesTest : ExpectSpec() {
     override fun afterSpec(spec: Spec) {
@@ -57,6 +57,8 @@ class FetchGamesTest : ExpectSpec() {
             }
 
             expect("update existing games") {
+                updateAt(user)
+
                 withTestPressurizer {
                     handleRequest(HttpMethod.Post, "/fetchGames") {
                         addHeader("Authorization", "Bearer $token")
@@ -69,6 +71,17 @@ class FetchGamesTest : ExpectSpec() {
                 val userGames = Database.getGamesByUser(user)
 
                 userGames.size shouldBe 70
+            }
+
+            expect("wait 6 hours for a new fetch") {
+                withTestPressurizer {
+                    handleRequest(HttpMethod.Post, "/fetchGames") {
+                        addHeader("Authorization", "Bearer $token")
+                    }.apply {
+                        response.content shouldContain "\"hours\":5"
+                        response.content shouldContain "\"minutes\":59"
+                    }
+                }
             }
 
             expect("user without games on steam") {
@@ -98,6 +111,14 @@ class FetchGamesTest : ExpectSpec() {
                         response.status() shouldBe HttpStatusCode.Unauthorized
                     }
                 }
+            }
+        }
+    }
+
+    private fun updateAt(user: SteamId) {
+        transaction {
+            UsersTable.update({ UsersTable.steamId eq user.id }) {
+                it[UsersTable.updatedAt] = Instant.now().minus(1L, ChronoUnit.DAYS)
             }
         }
     }

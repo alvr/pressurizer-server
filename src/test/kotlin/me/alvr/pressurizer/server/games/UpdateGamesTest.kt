@@ -15,12 +15,9 @@ import io.ktor.server.testing.setBody
 import kotlinx.coroutines.runBlocking
 import me.alvr.pressurizer.auth.AuthJWT
 import me.alvr.pressurizer.database.Database
-import me.alvr.pressurizer.database.tables.CountriesTable
-import me.alvr.pressurizer.database.tables.CurrenciesTable
 import me.alvr.pressurizer.database.tables.GamesTable
 import me.alvr.pressurizer.database.tables.UserGamesTable
 import me.alvr.pressurizer.database.tables.UsersTable
-import me.alvr.pressurizer.database.tables.VersionTable
 import me.alvr.pressurizer.domain.Game
 import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.server.withTestPressurizer

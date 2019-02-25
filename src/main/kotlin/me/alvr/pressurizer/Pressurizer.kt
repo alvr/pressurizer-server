@@ -21,9 +21,9 @@ import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import me.alvr.pressurizer.auth.AuthJWT
-import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.config.ServerSpec
 import me.alvr.pressurizer.config.config
+import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.routes.auth.authRoutes
 import me.alvr.pressurizer.routes.games.gamesRoutes
 import me.alvr.pressurizer.utils.StatusPageError

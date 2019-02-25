@@ -11,5 +11,5 @@ import java.time.Instant
 data class User(
     val id: SteamId,
     val country: Country,
-    val updatedAt: Instant? = null
+    val updatedAt: Instant
 )
