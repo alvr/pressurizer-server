@@ -12,8 +12,10 @@ import me.alvr.pressurizer.database.tables.GamesTable
 import me.alvr.pressurizer.database.tables.UserGamesTable
 import me.alvr.pressurizer.database.tables.UsersTable
 import me.alvr.pressurizer.database.tables.VersionTable
+import me.alvr.pressurizer.domain.Country
 import me.alvr.pressurizer.domain.Game
 import me.alvr.pressurizer.domain.SteamId
+import me.alvr.pressurizer.domain.mappers.CountryMapper
 import me.alvr.pressurizer.domain.mappers.CurrencyMapper
 import me.alvr.pressurizer.domain.mappers.UserGameMapper
 import me.alvr.pressurizer.domain.mappers.UserMapper
@@ -90,12 +92,12 @@ object Database {
         }
     }
 
-    // USERS QUERIES
+    //region [User Queries]
     suspend fun insertUser(user: SteamId, countryCode: String? = "US") = withContext(dispatcher) {
         transaction {
             UsersTable.insertIgnore { u ->
                 u[steamId] = user.id
-                countryCode?.let { u[country] = it }
+                countryCode?.let { u[country] = it.toUpperCase() }
             }
         }
     }
@@ -108,15 +110,34 @@ object Database {
         }
     }
 
-    suspend fun newUpdateAt(user: SteamId) = withContext(dispatcher) {
+    suspend fun getCountry(user: SteamId) = withContext(dispatcher) {
+        transaction {
+            (CountriesTable innerJoin UsersTable)
+                .slice(CountriesTable.code, CountriesTable.name)
+                .select { (UsersTable.steamId eq user.id) and (UsersTable.country eq CountriesTable.code) }
+                .map { CountryMapper.map(it) }
+                .first()
+        }
+    }
+
+    suspend fun updateCountry(user: SteamId, country: Country) = withContext(dispatcher) {
+        transaction {
+            UsersTable.update({ UsersTable.steamId eq user.id }) {
+                it[UsersTable.country] = country.code.toUpperCase()
+            }
+        }
+    }
+
+    suspend fun updateUpdatedAt(user: SteamId) = withContext(dispatcher) {
         transaction {
             UsersTable.update({ UsersTable.steamId eq user.id }) {
                 it[UsersTable.updatedAt] = Instant.now()
             }
         }
     }
+    //endregion [User Queries]
 
-    // GAMES QUERIES
+    //region [Games Queries]
     suspend fun insertGame(gameId: String, gameName: String) = withContext(dispatcher) {
         transaction {
             GamesTable.insertIgnore {
@@ -132,8 +153,9 @@ object Database {
                 .map { it[UserGamesTable.appId] }
         }
     }
+    //endregion [Games Queries]
 
-    // USERGAMES QUERIES
+    //region [UserGames Queries]
     suspend fun getGamesCompleteByUser(user: SteamId) = withContext(dispatcher) {
         transaction {
             val games = (UserGamesTable innerJoin GamesTable)
@@ -188,7 +210,7 @@ object Database {
                 game.cost?.let {
                     when {
                         it < BigDecimal.ZERO -> new[cost] = BigDecimal.ZERO
-                        it > 9999.toBigDecimal() -> new[cost] = 9999.toBigDecimal()
+                        it > 999999999.toBigDecimal() -> new[cost] = 999999999.toBigDecimal()
                         else -> new[cost] = it
                     }
                 }
@@ -197,8 +219,9 @@ object Database {
             }
         }
     }
+    //endregion [UserGames Queries]
 
-    // CURRENCY QUERIES
+    //region [Currency Queries]
     suspend fun getCurrencyInfo(countryCode: String) = withContext(dispatcher) {
         transaction {
             (CurrenciesTable innerJoin CountriesTable)
@@ -210,4 +233,17 @@ object Database {
                 .first()
         }
     }
+    //endregion [Currency Queries]
+
+    //region [Country Queries]
+    suspend fun getCountries() = withContext(dispatcher) {
+        transaction {
+            CountriesTable
+                .slice(CountriesTable.code, CountriesTable.name)
+                .selectAll()
+                .orderBy(CountriesTable.name)
+                .map { CountryMapper.map(it) }
+        }
+    }
+    //endregion [Country Queries]
 }

@@ -62,7 +62,7 @@ internal fun Route.fetchGames() = authenticate {
                     }
                 }.joinAll()
 
-                Database.newUpdateAt(user)
+                Database.updateUpdatedAt(user)
 
                 call.respond(
                     mapOf(

@@ -228,7 +228,7 @@ class DatabaseTest : ExpectSpec() {
                 )
 
                 val nine = selectedGames[1].copy(
-                    cost = 10000.toBigDecimal()
+                    cost = 1_000_000_000.toBigDecimal()
                 )
 
                 Database.updateUserGame(user, zero)
@@ -242,7 +242,7 @@ class DatabaseTest : ExpectSpec() {
 
                 assertSoftly {
                     newZero?.cost shouldBe 0.toBigDecimal().round()
-                    newNine?.cost shouldBe 9999.toBigDecimal().round()
+                    newNine?.cost shouldBe 999_999_999.toBigDecimal().round()
                 }
             }
         }

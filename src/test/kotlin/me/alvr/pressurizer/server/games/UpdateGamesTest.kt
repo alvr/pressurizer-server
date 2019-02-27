@@ -167,7 +167,7 @@ class UpdateGamesTest : ExpectSpec() {
                     val selectedGame = games.shuffled().first()
 
                     val updateCost = selectedGame.copy(
-                        cost = (1_000_000).toBigDecimal()
+                        cost = (1_000_000_000).toBigDecimal()
                     )
 
                     withTestPressurizer {
@@ -183,7 +183,7 @@ class UpdateGamesTest : ExpectSpec() {
 
                     val gameUpdated = games.find { it.appId == updateCost.appId }
 
-                    gameUpdated?.cost shouldBe 9999.toBigDecimal().round()
+                    gameUpdated?.cost shouldBe 999_999_999.toBigDecimal().round()
                 }
             }
         }
