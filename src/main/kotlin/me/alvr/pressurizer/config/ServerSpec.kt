@@ -18,4 +18,6 @@ object ServerSpec : ConfigSpec() {
     val salt by required<String>("salt", "String to encrypt auth token")
     val client by required<URI>("client", "URI of the client")
     val apikey by required<String>("apikey", "Steam API key")
+    val publicHost by required<String>("publichost")
+    val publicPort by optional("", "publicport")
 }
