@@ -23,7 +23,7 @@ stages:
   - name: build
   - name: test
   - name: fatJar
-    if: branch = develop
+    if: branch IN (master, develop)
   - name: deploy
     if: branch = master
 
