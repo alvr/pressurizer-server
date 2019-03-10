@@ -1,4 +1,4 @@
-package me.alvr.pressurizer.auth
+package me.alvr.pressurizer.utils
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier

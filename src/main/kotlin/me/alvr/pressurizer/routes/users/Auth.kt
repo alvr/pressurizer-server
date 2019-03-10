@@ -6,22 +6,25 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import io.ktor.locations.KtorExperimentalLocationsAPI
+import io.ktor.locations.get
 import io.ktor.request.ApplicationRequest
 import io.ktor.response.respondRedirect
 import io.ktor.routing.Route
-import io.ktor.routing.get
 import kotlinx.coroutines.runBlocking
-import me.alvr.pressurizer.auth.AuthJWT
+import me.alvr.pressurizer.utils.AuthJWT
 import me.alvr.pressurizer.config.ServerSpec
 import me.alvr.pressurizer.config.config
 import me.alvr.pressurizer.database.Database
 import me.alvr.pressurizer.domain.PlayerSummary
 import me.alvr.pressurizer.domain.SteamId
+import me.alvr.pressurizer.routes.LoginAuthRoute
 import me.alvr.pressurizer.utils.OPENID
 import me.alvr.pressurizer.utils.PLAYER_SUMMARY
 import me.alvr.pressurizer.utils.client
 
-internal fun Route.auth() = get("/login/auth") {
+@KtorExperimentalLocationsAPI
+internal fun Route.auth() = get<LoginAuthRoute> {
     val auth = call.request.checkLogin()
 
     if (!auth.first || auth.second.id.isEmpty())

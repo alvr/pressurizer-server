@@ -45,6 +45,7 @@ dependencies {
             exclude("org.jetbrains.kotlinx")
         }
         implementation("$k-gson:${Versions.KTOR}")
+        implementation("$k-locations:${Versions.KTOR}")
         implementation("$k-server-netty:${Versions.KTOR}")
         testImplementation("$k-server-test-host:${Versions.KTOR}")
     }

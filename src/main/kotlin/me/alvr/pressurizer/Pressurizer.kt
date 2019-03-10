@@ -12,6 +12,8 @@ import io.ktor.gson.gson
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.locations.KtorExperimentalLocationsAPI
+import io.ktor.locations.Locations
 import io.ktor.request.uri
 import io.ktor.response.respond
 import io.ktor.response.respondText
@@ -20,7 +22,7 @@ import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import me.alvr.pressurizer.auth.AuthJWT
+import me.alvr.pressurizer.utils.AuthJWT
 import me.alvr.pressurizer.config.ServerSpec
 import me.alvr.pressurizer.config.config
 import me.alvr.pressurizer.domain.SteamId
@@ -33,6 +35,7 @@ import me.alvr.pressurizer.utils.StatusPageError
  *
  * @receiver Application of type [Application]
  */
+@KtorExperimentalLocationsAPI
 fun Application.pressurizer() {
     install(Authentication) {
         jwt {
@@ -56,6 +59,7 @@ fun Application.pressurizer() {
         allowCredentials = true
         anyHost()
     }
+    install(Locations)
     install(StatusPages) {
         exception<IllegalStateException> {
             call.respond(
@@ -95,6 +99,7 @@ fun Application.pressurizer() {
 /**
  * Main entry point
  */
+@KtorExperimentalLocationsAPI
 fun main() {
     embeddedServer(
         Netty,

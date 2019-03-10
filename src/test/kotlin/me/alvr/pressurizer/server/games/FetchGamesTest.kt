@@ -8,7 +8,7 @@ import io.kotlintest.specs.ExpectSpec
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.handleRequest
-import me.alvr.pressurizer.auth.AuthJWT
+import me.alvr.pressurizer.utils.AuthJWT
 import me.alvr.pressurizer.database.Database
 import me.alvr.pressurizer.database.tables.GamesTable
 import me.alvr.pressurizer.database.tables.UserGamesTable
@@ -43,7 +43,7 @@ class FetchGamesTest : ExpectSpec() {
 
             expect("insert new games") {
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Post, "/fetchGames") {
+                    handleRequest(HttpMethod.Post, "/games.json") {
                         addHeader("Authorization", "Bearer $token")
                     }.apply {
                         response.content shouldContain "\"new\":70"
@@ -60,7 +60,7 @@ class FetchGamesTest : ExpectSpec() {
                 updateAt(user)
 
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Post, "/fetchGames") {
+                    handleRequest(HttpMethod.Post, "/games.json") {
                         addHeader("Authorization", "Bearer $token")
                     }.apply {
                         response.content shouldContain "\"new\":0"
@@ -75,7 +75,7 @@ class FetchGamesTest : ExpectSpec() {
 
             expect("wait 6 hours for a new fetch") {
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Post, "/fetchGames") {
+                    handleRequest(HttpMethod.Post, "/games.json") {
                         addHeader("Authorization", "Bearer $token")
                     }.apply {
                         response.content shouldContain "\"hours\":5"
@@ -90,7 +90,7 @@ class FetchGamesTest : ExpectSpec() {
                 Database.insertUser(u)
 
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Post, "/fetchGames") {
+                    handleRequest(HttpMethod.Post, "/games.json") {
                         addHeader("Authorization", "Bearer $jwt")
                     }.apply {
                        assertSoftly {
@@ -105,7 +105,7 @@ class FetchGamesTest : ExpectSpec() {
         context("invalid token") {
             expect("return error 401") {
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Post, "/fetchGames") {
+                    handleRequest(HttpMethod.Post, "/games.json") {
                         addHeader("Authorization", "Bearer InvalidToken")
                     }.apply {
                         response.status() shouldBe HttpStatusCode.Unauthorized

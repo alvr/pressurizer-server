@@ -5,7 +5,7 @@ import io.kotlintest.specs.ExpectSpec
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.handleRequest
-import me.alvr.pressurizer.auth.AuthJWT
+import me.alvr.pressurizer.utils.AuthJWT
 import me.alvr.pressurizer.database.Database
 import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.server.withTestPressurizer
@@ -14,7 +14,7 @@ class AllGamesTest : ExpectSpec({
     context("get all games") {
         expect("all games by user") {
             withTestPressurizer {
-                handleRequest(HttpMethod.Get, "/allGames") {
+                handleRequest(HttpMethod.Get, "/games.json") {
                     addHeader("Authorization", "Bearer InvalidToken")
                 }.apply {
                     response.status() shouldBe HttpStatusCode.Unauthorized
@@ -29,7 +29,7 @@ class AllGamesTest : ExpectSpec({
             Database.insertUser(user)
 
             withTestPressurizer {
-                handleRequest(HttpMethod.Get, "/allGames") {
+                handleRequest(HttpMethod.Get, "/games.json") {
                     addHeader("Authorization", "Bearer $token")
                 }.apply {
                     println(response.content)
@@ -41,7 +41,7 @@ class AllGamesTest : ExpectSpec({
     context("invalid token") {
         expect("return error 401") {
             withTestPressurizer {
-                handleRequest(HttpMethod.Get, "/allGames") {
+                handleRequest(HttpMethod.Get, "/games.json") {
                     addHeader("Authorization", "Bearer InvalidToken")
                 }.apply {
                     response.status() shouldBe HttpStatusCode.Unauthorized

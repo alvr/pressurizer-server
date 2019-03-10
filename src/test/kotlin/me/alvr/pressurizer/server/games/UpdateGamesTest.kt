@@ -13,7 +13,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.setBody
 import kotlinx.coroutines.runBlocking
-import me.alvr.pressurizer.auth.AuthJWT
+import me.alvr.pressurizer.utils.AuthJWT
 import me.alvr.pressurizer.database.Database
 import me.alvr.pressurizer.database.tables.GamesTable
 import me.alvr.pressurizer.database.tables.UserGamesTable
@@ -46,7 +46,7 @@ class UpdateGamesTest : ExpectSpec() {
             Database.insertUser(user, null)
 
             withTestPressurizer {
-                handleRequest(HttpMethod.Post, "/fetchGames") {
+                handleRequest(HttpMethod.Post, "/games.json") {
                     addHeader("Authorization", "Bearer $token")
                 }
             }
@@ -66,7 +66,7 @@ class UpdateGamesTest : ExpectSpec() {
                 )
 
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Patch, "/updateGame") {
+                    handleRequest(HttpMethod.Patch, "/games.json") {
                         addHeader("Authorization", "Bearer $token")
                         addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                         setBody(Gson().toJson(updateFinished))
@@ -92,7 +92,7 @@ class UpdateGamesTest : ExpectSpec() {
                 )
 
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Patch, "/updateGame") {
+                    handleRequest(HttpMethod.Patch, "/games.json") {
                         addHeader("Authorization", "Bearer $token")
                         addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                         setBody(Gson().toJson(updatePlaytime))
@@ -119,7 +119,7 @@ class UpdateGamesTest : ExpectSpec() {
                     )
 
                     withTestPressurizer {
-                        handleRequest(HttpMethod.Patch, "/updateGame") {
+                        handleRequest(HttpMethod.Patch, "/games.json") {
                             addHeader("Authorization", "Bearer $token")
                             addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                             setBody(Gson().toJson(updateCost))
@@ -145,7 +145,7 @@ class UpdateGamesTest : ExpectSpec() {
                     )
 
                     withTestPressurizer {
-                        handleRequest(HttpMethod.Patch, "/updateGame") {
+                        handleRequest(HttpMethod.Patch, "/games.json") {
                             addHeader("Authorization", "Bearer $token")
                             addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                             setBody(Gson().toJson(updateCost))
@@ -171,7 +171,7 @@ class UpdateGamesTest : ExpectSpec() {
                     )
 
                     withTestPressurizer {
-                        handleRequest(HttpMethod.Patch, "/updateGame") {
+                        handleRequest(HttpMethod.Patch, "/games.json") {
                             addHeader("Authorization", "Bearer $token")
                             addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                             setBody(Gson().toJson(updateCost))
@@ -191,7 +191,7 @@ class UpdateGamesTest : ExpectSpec() {
         context("invalid token") {
             expect("return error 401") {
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Patch, "/updateGame") {
+                    handleRequest(HttpMethod.Patch, "/games.json") {
                         addHeader("Authorization", "Bearer InvalidToken")
                     }.apply {
                         response.status() shouldBe HttpStatusCode.Unauthorized

@@ -3,18 +3,20 @@ package me.alvr.pressurizer.routes.users
 import io.ktor.application.call
 import io.ktor.auth.authenticate
 import io.ktor.auth.principal
+import io.ktor.locations.KtorExperimentalLocationsAPI
+import io.ktor.locations.get
+import io.ktor.locations.patch
 import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Route
-import io.ktor.routing.get
-import io.ktor.routing.patch
 import me.alvr.pressurizer.database.Database
 import me.alvr.pressurizer.domain.Country
 import me.alvr.pressurizer.domain.SteamId
-import org.postgresql.util.PSQLException
+import me.alvr.pressurizer.routes.CountryRoute
 
+@KtorExperimentalLocationsAPI
 internal fun Route.countries() = authenticate {
-    get("/countries") {
+    get<CountryRoute> {
         call.principal<SteamId>()?.let { user ->
             val userCountry = Database.getCountry(user)
             val countries = Database.getCountries()
@@ -28,8 +30,9 @@ internal fun Route.countries() = authenticate {
     }
 }
 
+@KtorExperimentalLocationsAPI
 internal fun Route.updateCountry() = authenticate {
-    patch("/updateCountry") {
+    patch<CountryRoute> {
         call.principal<SteamId>()?.let { user ->
             val newData = call.receive<Country>()
 

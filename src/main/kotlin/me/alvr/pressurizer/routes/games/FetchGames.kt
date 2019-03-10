@@ -4,9 +4,10 @@ import io.ktor.application.call
 import io.ktor.auth.authenticate
 import io.ktor.auth.principal
 import io.ktor.client.request.get
+import io.ktor.locations.KtorExperimentalLocationsAPI
+import io.ktor.locations.post
 import io.ktor.response.respond
 import io.ktor.routing.Route
-import io.ktor.routing.post
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import me.alvr.pressurizer.config.ServerSpec
@@ -15,6 +16,7 @@ import me.alvr.pressurizer.database.Database
 import me.alvr.pressurizer.domain.Game
 import me.alvr.pressurizer.domain.OwnedGames
 import me.alvr.pressurizer.domain.SteamId
+import me.alvr.pressurizer.routes.GamesRoute
 import me.alvr.pressurizer.utils.APPID_DETAILS
 import me.alvr.pressurizer.utils.OWNED_GAMES
 import me.alvr.pressurizer.utils.client
@@ -22,8 +24,9 @@ import me.alvr.pressurizer.utils.getGameCost
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
+@KtorExperimentalLocationsAPI
 internal fun Route.fetchGames() = authenticate {
-    post("/fetchGames") {
+    post<GamesRoute> {
         call.principal<SteamId>()?.let { user ->
             val updatedAt = Database.getUserById(user).updatedAt
 

@@ -11,7 +11,7 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.setBody
-import me.alvr.pressurizer.auth.AuthJWT
+import me.alvr.pressurizer.utils.AuthJWT
 import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.domain.Token
 import me.alvr.pressurizer.server.withTestPressurizer
@@ -22,7 +22,7 @@ class PostTokenTest : ExpectSpec({
             withTestPressurizer {
                 val jwt = AuthJWT.sign(SteamId("Pressurizer"))
 
-                handleRequest(HttpMethod.Post, "/token") {
+                handleRequest(HttpMethod.Post, "/token.json") {
                     addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                     setBody(Gson().toJson(Token(jwt)))
                 }.apply {
@@ -40,7 +40,7 @@ class PostTokenTest : ExpectSpec({
             withTestPressurizer {
                 val jwt = "INVALID_TOKEN"
 
-                handleRequest(HttpMethod.Post, "/token") {
+                handleRequest(HttpMethod.Post, "/token.json") {
                     addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                     setBody(Gson().toJson(Token(jwt)))
                 }.apply {
@@ -56,7 +56,7 @@ class PostTokenTest : ExpectSpec({
     context("send a blank token") {
         expect("response status code is 400") {
             withTestPressurizer {
-                handleRequest(HttpMethod.Post, "/token") {
+                handleRequest(HttpMethod.Post, "/token.json") {
                     addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                     setBody(Gson().toJson(Token("")))
                 }.apply {
