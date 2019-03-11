@@ -8,7 +8,7 @@ version = "0.3.0"
 object Versions {
     const val CFG4K = "0.9.3"
     const val KOTLIN = "1.3.21"
-    const val EXPOSED = "0.13.2"
+    const val EXPOSED = "0.13.3"
     const val HIKARI = "3.3.1"
     const val JSOUP = "1.11.3"
     const val KOTLINTEST = "3.3.1"
