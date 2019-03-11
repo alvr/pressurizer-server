@@ -11,18 +11,23 @@ import me.alvr.pressurizer.database.tables.GamesTable
 import me.alvr.pressurizer.database.tables.UserGamesTable
 import me.alvr.pressurizer.database.tables.UsersTable
 import me.alvr.pressurizer.database.tables.VersionTable
+import me.alvr.pressurizer.database.tables.WishlistTable
 import me.alvr.pressurizer.domain.Country
 import me.alvr.pressurizer.domain.Game
 import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.domain.mappers.CountryMapper
 import me.alvr.pressurizer.domain.mappers.CurrencyMapper
+import me.alvr.pressurizer.domain.mappers.GameMapper
 import me.alvr.pressurizer.domain.mappers.UserGameMapper
 import me.alvr.pressurizer.domain.mappers.UserMapper
+import me.alvr.pressurizer.routes.wishlist.WishlistStatus
 import me.alvr.pressurizer.utils.average
 import me.alvr.pressurizer.utils.sum
 import org.jetbrains.exposed.sql.SchemaUtils.createMissingTablesAndColumns
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
@@ -64,6 +69,7 @@ object Database {
                 UserGamesTable,
                 CountriesTable,
                 CurrenciesTable,
+                WishlistTable,
                 VersionTable
             )
 
@@ -245,4 +251,37 @@ object Database {
         }
     }
     //endregion [Country Queries]
+
+    //region [Wishlist Queries]
+    suspend fun getWishlist(user: SteamId) = withContext(dispatcher) {
+        transaction {
+            WishlistTable
+                .slice(WishlistTable.appId)
+                .select { WishlistTable.steamId eq user.id }
+                .map { it[WishlistTable.appId] }
+        }
+    }
+
+    suspend fun updateWishlist(user: SteamId, games: Map<WishlistStatus, List<String>>) = withContext(dispatcher) {
+        games[WishlistStatus.NEW]?.forEach { app ->
+            transaction {
+                WishlistTable
+                    .insertIgnore {
+                        it[WishlistTable.steamId] = user.id
+                        it[WishlistTable.appId] = app
+                    }
+            }
+        }
+
+        games[WishlistStatus.REMOVE]?.forEach {
+            transaction {
+                WishlistTable
+                    .deleteWhere {
+                        (WishlistTable.steamId eq user.id) and
+                                (WishlistTable.appId eq it)
+                    }
+            }
+        }
+    }
+    //endregion [Wishlist Queries]
 }

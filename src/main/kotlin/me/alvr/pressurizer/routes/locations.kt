@@ -24,3 +24,8 @@ class CountryRoute
 @KtorExperimentalLocationsAPI
 @Location("/games.json")
 class GamesRoute
+
+//Wishlist
+@KtorExperimentalLocationsAPI
+@Location("/wishlist.json")
+class WishlistRoute

@@ -27,6 +27,7 @@ import me.alvr.pressurizer.config.serverConfig
 import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.routes.games.gamesRoutes
 import me.alvr.pressurizer.routes.users.usersRoutes
+import me.alvr.pressurizer.routes.wishlist.wishlistsRoutes
 import me.alvr.pressurizer.utils.StatusPageError
 import java.time.Duration
 
@@ -83,6 +84,7 @@ fun Application.pressurizer() {
     routing {
         usersRoutes()
         gamesRoutes()
+        wishlistsRoutes()
 
         get("/") {
             call.respondText { "Pressurizer" }

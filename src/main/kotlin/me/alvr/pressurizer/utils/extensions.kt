@@ -23,6 +23,9 @@ fun String.getGameCost(currency: Currency): BigDecimal {
         .toBigDecimal()
 }
 
+fun String.getWishlist() =
+    """"appid":(\d*),""".toRegex().findAll(this).mapNotNull { it.groupValues[1] }.toList()
+
 fun Iterable<BigDecimal>.sum(): BigDecimal = this.fold(BigDecimal.ZERO, BigDecimal::add)
 
 fun Iterable<BigDecimal>.average(): BigDecimal = this.sum() / this.count().toBigDecimal()
