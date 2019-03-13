@@ -4,8 +4,7 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.withContext
-import me.alvr.pressurizer.config.DatabaseSpec
-import me.alvr.pressurizer.config.config
+import me.alvr.pressurizer.config.databaseConfig
 import me.alvr.pressurizer.database.tables.CountriesTable
 import me.alvr.pressurizer.database.tables.CurrenciesTable
 import me.alvr.pressurizer.database.tables.GamesTable
@@ -40,7 +39,7 @@ import org.jetbrains.exposed.sql.Database as Exposed
  * Database singleton to do CRUD operations.
  */
 object Database {
-    private val pool: Int = config[DatabaseSpec.pool]
+    private val pool: Int = databaseConfig.pool()
     private val dispatcher: CoroutineContext = Executors.newFixedThreadPool(pool).asCoroutineDispatcher()
 
     private val migrations = listOf(
@@ -49,9 +48,9 @@ object Database {
 
     init {
         val cfg = HikariConfig()
-        cfg.jdbcUrl = config[DatabaseSpec.url]
-        cfg.username = config[DatabaseSpec.user]
-        cfg.password = config[DatabaseSpec.pass]
+        cfg.jdbcUrl = databaseConfig.url()
+        cfg.username = databaseConfig.user()
+        cfg.password = databaseConfig.pass()
         cfg.maximumPoolSize = pool
         cfg.validate()
 

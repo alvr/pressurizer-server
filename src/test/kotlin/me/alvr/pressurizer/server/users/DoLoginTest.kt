@@ -10,8 +10,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.formUrlEncode
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.server.testing.handleRequest
-import me.alvr.pressurizer.config.ServerSpec
-import me.alvr.pressurizer.config.config
+import me.alvr.pressurizer.config.serverConfig
 import me.alvr.pressurizer.server.withTestPressurizer
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.model.HttpRequest.request
@@ -93,7 +92,7 @@ class DoLoginTest : ExpectSpec() {
 
                 withTestPressurizer {
                     handleRequest(HttpMethod.Get, "/login/auth?${params.formUrlEncode()}").apply {
-                        response.headers["Location"] shouldContain config[ServerSpec.client].toString()
+                        response.headers["Location"] shouldContain serverConfig.client().toString()
                     }
                 }
             }

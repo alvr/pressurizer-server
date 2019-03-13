@@ -7,19 +7,15 @@ import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.get
 import io.ktor.response.respondRedirect
 import io.ktor.routing.Route
-import me.alvr.pressurizer.config.ServerSpec
-import me.alvr.pressurizer.config.config
+import me.alvr.pressurizer.config.serverConfig
 import me.alvr.pressurizer.routes.LoginRoute
 import me.alvr.pressurizer.utils.OPENID
 
 @KtorExperimentalLocationsAPI
 internal fun Route.login() = get<LoginRoute> {
     val scheme = call.request.origin.scheme
-    val host = config[ServerSpec.publicHost]
-    var port = ""
-
-    if (config[ServerSpec.publicPort].isNotBlank())
-        port = ":${config[ServerSpec.publicPort]}"
+    val host = serverConfig.publicHost()
+    val port = serverConfig.publicPort()?.let { ":${serverConfig.publicPort()}" } ?: run { "" }
 
     val params = listOf(
         "openid.identity" to "http://specs.openid.net/auth/2.0/identifier_select",

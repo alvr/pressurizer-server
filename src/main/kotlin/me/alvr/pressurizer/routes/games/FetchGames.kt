@@ -10,8 +10,7 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
-import me.alvr.pressurizer.config.ServerSpec
-import me.alvr.pressurizer.config.config
+import me.alvr.pressurizer.config.apiKeyConfig
 import me.alvr.pressurizer.database.Database
 import me.alvr.pressurizer.domain.Game
 import me.alvr.pressurizer.domain.OwnedGames
@@ -34,7 +33,7 @@ internal fun Route.fetchGames() = authenticate {
             val diff = ChronoUnit.MINUTES.between(sixHours, updatedAt)
 
             if (diff <= 0) {
-                val ownedGames = client.get<OwnedGames>(OWNED_GAMES.format(config[ServerSpec.apikey], user.id)).response.games
+                val ownedGames = client.get<OwnedGames>(OWNED_GAMES.format(apiKeyConfig.steam(), user.id)).response.games
 
                 val inDatabase = Database.getGamesByUser(user)
 

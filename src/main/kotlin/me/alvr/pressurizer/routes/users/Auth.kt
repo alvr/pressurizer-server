@@ -13,8 +13,8 @@ import io.ktor.response.respondRedirect
 import io.ktor.routing.Route
 import kotlinx.coroutines.runBlocking
 import me.alvr.pressurizer.utils.AuthJWT
-import me.alvr.pressurizer.config.ServerSpec
-import me.alvr.pressurizer.config.config
+import me.alvr.pressurizer.config.apiKeyConfig
+import me.alvr.pressurizer.config.serverConfig
 import me.alvr.pressurizer.database.Database
 import me.alvr.pressurizer.domain.PlayerSummary
 import me.alvr.pressurizer.domain.SteamId
@@ -33,7 +33,7 @@ internal fun Route.auth() = get<LoginAuthRoute> {
     try {
         Database.getUserById(auth.second)
     } catch (_: NoSuchElementException) {
-        val userInfo = client.get<PlayerSummary>(PLAYER_SUMMARY.format(config[ServerSpec.apikey], auth.second.id))
+        val userInfo = client.get<PlayerSummary>(PLAYER_SUMMARY.format(apiKeyConfig.steam(), auth.second.id))
         val countryCode = userInfo.response.players.first().countryCode
 
         Database.insertUser(auth.second, countryCode)
@@ -41,7 +41,7 @@ internal fun Route.auth() = get<LoginAuthRoute> {
 
     val token = AuthJWT.sign(auth.second)
 
-    call.respondRedirect("${config[ServerSpec.client]}#token=$token")
+    call.respondRedirect("${serverConfig.client()}#token=$token")
 }
 
 private fun ApplicationRequest.checkLogin(): Pair<Boolean, SteamId> {

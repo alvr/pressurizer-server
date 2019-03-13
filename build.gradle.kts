@@ -6,7 +6,7 @@ group = "me.alvr"
 version = "0.3.0"
 
 object Versions {
-    const val KONF = "0.12"
+    const val CFG4K = "0.9.3"
     const val KOTLIN = "1.3.21"
     const val EXPOSED = "0.13.2"
     const val HIKARI = "3.3.1"
@@ -24,7 +24,7 @@ plugins {
     application
     jacoco
     kotlin("jvm") version "1.3.21"
-    id("com.github.johnrengelman.shadow") version "4.0.4"
+    id("com.github.johnrengelman.shadow") version "5.0.0"
     id("com.adarshr.test-logger") version "1.6.0"
 }
 
@@ -50,15 +50,9 @@ dependencies {
         testImplementation("$k-server-test-host:${Versions.KTOR}")
     }
 
-    implementation("com.uchuhimo", "konf", Versions.KONF) {
-        exclude("com.fasterxml.jackson.core")
-        exclude("com.moandjiezana.toml")
-        exclude("org.apiguardian")
-        exclude("org.dom4j")
-        exclude("org.eclipse.jgit")
-        exclude("org.yaml")
-    }
-
+    implementation("com.jdiazcano.cfg4k", "cfg4k-core", Versions.CFG4K)
+    implementation("com.jdiazcano.cfg4k", "cfg4k-hocon", Versions.CFG4K)
+    
     implementation("org.jetbrains.exposed", "exposed", Versions.EXPOSED)
     implementation("org.postgresql", "postgresql", Versions.POSTGRES)
     implementation("com.zaxxer", "HikariCP", Versions.HIKARI)

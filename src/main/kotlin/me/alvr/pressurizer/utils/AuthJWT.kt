@@ -5,8 +5,7 @@ import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTVerificationException
 import com.auth0.jwt.interfaces.DecodedJWT
-import me.alvr.pressurizer.config.ServerSpec
-import me.alvr.pressurizer.config.config
+import me.alvr.pressurizer.config.serverConfig
 import me.alvr.pressurizer.domain.SteamId
 import java.time.Instant
 import java.time.Period
@@ -16,7 +15,7 @@ import java.util.Date
  * Singleton for creating and validating auth tokens.
  */
 object AuthJWT {
-    private val algorithm = Algorithm.HMAC512(config[ServerSpec.salt])
+    private val algorithm = Algorithm.HMAC512(serverConfig.salt())
 
     val verifier: JWTVerifier by lazy { JWT.require(algorithm).build() }
 

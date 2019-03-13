@@ -11,4 +11,5 @@
     <logger name="org.jetbrains.exposed.sql" level="INFO"/>
     <logger name="com.zaxxer.hikari.pool.PoolBase" level="OFF"/>
     <logger name="com.zaxxer.hikari.pool.HikariPool" level="OFF"/>
+    <logger name="com.jdiazcano.cfg4k.loaders.PropertyConfigLoader" level="OFF"/>
 </configuration>

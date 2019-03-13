@@ -23,12 +23,12 @@ import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import me.alvr.pressurizer.utils.AuthJWT
-import me.alvr.pressurizer.config.ServerSpec
-import me.alvr.pressurizer.config.config
+import me.alvr.pressurizer.config.serverConfig
 import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.routes.games.gamesRoutes
 import me.alvr.pressurizer.routes.users.usersRoutes
 import me.alvr.pressurizer.utils.StatusPageError
+import java.time.Duration
 
 /**
  * Configuration of the server itself.
@@ -56,8 +56,8 @@ fun Application.pressurizer() {
         method(HttpMethod.Post)
         method(HttpMethod.Put)
         header(HttpHeaders.Authorization)
+        host(serverConfig.client().authority, listOf(serverConfig.client().scheme))
         allowCredentials = true
-        anyHost()
     }
     install(Locations)
     install(StatusPages) {
@@ -103,8 +103,8 @@ fun Application.pressurizer() {
 fun main() {
     embeddedServer(
         Netty,
-        host = config[ServerSpec.host],
-        port = config[ServerSpec.port],
+        host = serverConfig.host(),
+        port = serverConfig.port(),
         module = Application::pressurizer
     ).start(true)
 }

@@ -7,8 +7,7 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.formUrlEncode
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.server.testing.handleRequest
-import me.alvr.pressurizer.config.ServerSpec
-import me.alvr.pressurizer.config.config
+import me.alvr.pressurizer.config.serverConfig
 import me.alvr.pressurizer.server.withTestPressurizer
 import me.alvr.pressurizer.utils.OPENID
 
@@ -19,11 +18,8 @@ class LoginTest : ExpectSpec({
             withTestPressurizer {
                 handleRequest(HttpMethod.Get, "/login").apply {
                     val scheme = request.origin.scheme
-                    val host = config[ServerSpec.publicHost]
-                    var port = ""
-
-                    if (config[ServerSpec.publicPort].isNotBlank())
-                        port = ":${config[ServerSpec.publicPort]}"
+                    val host = serverConfig.publicHost()
+                    val port = serverConfig.publicPort()?.let { ":${serverConfig.publicPort()}" } ?: run { "" }
 
                     val params = listOf(
                         "openid.identity" to "http://specs.openid.net/auth/2.0/identifier_select",
