@@ -9,6 +9,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.setBody
 import me.alvr.pressurizer.utils.AuthJWT
@@ -16,6 +17,7 @@ import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.domain.Token
 import me.alvr.pressurizer.server.withTestPressurizer
 
+@KtorExperimentalLocationsAPI
 class PostTokenTest : ExpectSpec({
     context("send a valid token") {
         expect("response status code is 200") {

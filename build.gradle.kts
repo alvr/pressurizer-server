@@ -8,10 +8,10 @@ version = "0.3.0"
 object Versions {
     const val KONF = "0.12"
     const val KOTLIN = "1.3.21"
-    const val EXPOSED = "0.12.2"
+    const val EXPOSED = "0.13.2"
     const val HIKARI = "3.3.1"
     const val JSOUP = "1.11.3"
-    const val KOTLINTEST = "3.2.1"
+    const val KOTLINTEST = "3.3.1"
     const val KTOR = "1.1.3"
     const val LOGBACK = "1.2.3"
     const val MOCKSERVER = "5.5.1"
@@ -78,7 +78,7 @@ application {
 }
 
 jacoco {
-    toolVersion = "0.8.2"
+    toolVersion = "0.8.3"
 }
 
 tasks {

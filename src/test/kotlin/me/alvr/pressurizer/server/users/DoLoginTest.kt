@@ -8,6 +8,7 @@ import io.kotlintest.specs.ExpectSpec
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.formUrlEncode
+import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.server.testing.handleRequest
 import me.alvr.pressurizer.config.ServerSpec
 import me.alvr.pressurizer.config.config
@@ -19,10 +20,13 @@ import org.mockserver.model.NottableString.not
 import org.mockserver.model.NottableString.string
 import org.mockserver.model.Parameter.param
 
+@KtorExperimentalLocationsAPI
 class DoLoginTest : ExpectSpec() {
 
+    private lateinit var mockServer: ClientAndServer
+
     override fun beforeSpec(spec: Spec) {
-        val mockServer = ClientAndServer.startClientAndServer(6969)
+        mockServer = ClientAndServer.startClientAndServer(6969)
 
         mockServer.`when`(
             request()
@@ -65,6 +69,10 @@ class DoLoginTest : ExpectSpec() {
             response()
                 .withBody("{\"ok\":false}")
         )
+    }
+
+    override fun afterSpec(spec: Spec) {
+        mockServer.stop()
     }
 
     init {

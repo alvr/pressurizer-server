@@ -4,12 +4,14 @@ import io.kotlintest.shouldBe
 import io.kotlintest.specs.ExpectSpec
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.server.testing.handleRequest
 import me.alvr.pressurizer.utils.AuthJWT
 import me.alvr.pressurizer.database.Database
 import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.server.withTestPressurizer
 
+@KtorExperimentalLocationsAPI
 class AllGamesTest : ExpectSpec({
     context("get all games") {
         expect("all games by user") {

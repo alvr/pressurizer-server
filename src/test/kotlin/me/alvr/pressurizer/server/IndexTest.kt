@@ -6,8 +6,10 @@ import io.kotlintest.shouldBe
 import io.kotlintest.specs.ExpectSpec
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.server.testing.handleRequest
 
+@KtorExperimentalLocationsAPI
 class IndexTest : ExpectSpec({
     context("a running server") {
         expect("/ is a valid route") {

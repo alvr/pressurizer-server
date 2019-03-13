@@ -10,6 +10,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.setBody
 import kotlinx.coroutines.runBlocking
@@ -24,6 +25,7 @@ import me.alvr.pressurizer.server.withTestPressurizer
 import me.alvr.pressurizer.utils.round
 import org.jetbrains.exposed.sql.transactions.transaction
 
+@KtorExperimentalLocationsAPI
 class UpdateGamesTest : ExpectSpec() {
     private val user = SteamId("76561198319326905")
     private val token = AuthJWT.sign(user)

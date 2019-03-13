@@ -5,12 +5,14 @@ import io.kotlintest.specs.ExpectSpec
 import io.ktor.features.origin
 import io.ktor.http.HttpMethod
 import io.ktor.http.formUrlEncode
+import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.server.testing.handleRequest
 import me.alvr.pressurizer.config.ServerSpec
 import me.alvr.pressurizer.config.config
 import me.alvr.pressurizer.server.withTestPressurizer
 import me.alvr.pressurizer.utils.OPENID
 
+@KtorExperimentalLocationsAPI
 class LoginTest : ExpectSpec({
     context("login") {
         expect("return a valid url") {

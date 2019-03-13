@@ -7,6 +7,7 @@ import io.kotlintest.shouldBe
 import io.kotlintest.specs.ExpectSpec
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.server.testing.handleRequest
 import me.alvr.pressurizer.utils.AuthJWT
 import me.alvr.pressurizer.database.Database
@@ -20,6 +21,7 @@ import org.jetbrains.exposed.sql.update
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
+@KtorExperimentalLocationsAPI
 class FetchGamesTest : ExpectSpec() {
     override fun afterSpec(spec: Spec) {
         transaction {
