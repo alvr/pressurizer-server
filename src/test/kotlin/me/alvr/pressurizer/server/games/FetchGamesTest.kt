@@ -13,6 +13,7 @@ import me.alvr.pressurizer.utils.AuthJWT
 import me.alvr.pressurizer.database.Database
 import me.alvr.pressurizer.database.tables.GamesTable
 import me.alvr.pressurizer.database.tables.UserGamesTable
+import me.alvr.pressurizer.database.tables.UserWishlistTable
 import me.alvr.pressurizer.database.tables.UsersTable
 import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.server.withTestPressurizer
@@ -28,7 +29,8 @@ class FetchGamesTest : ExpectSpec() {
             listOf(
                 UsersTable.tableName,
                 GamesTable.tableName,
-                UserGamesTable.tableName
+                UserGamesTable.tableName,
+                UserWishlistTable.tableName
             ).forEach {
                 exec("TRUNCATE TABLE $it CASCADE;")
             }

@@ -15,6 +15,7 @@ import me.alvr.pressurizer.database.tables.CountriesTable
 import me.alvr.pressurizer.database.tables.CurrenciesTable
 import me.alvr.pressurizer.database.tables.GamesTable
 import me.alvr.pressurizer.database.tables.UserGamesTable
+import me.alvr.pressurizer.database.tables.UserWishlistTable
 import me.alvr.pressurizer.database.tables.UsersTable
 import me.alvr.pressurizer.database.tables.VersionTable
 import me.alvr.pressurizer.domain.Game
@@ -34,7 +35,8 @@ class DatabaseTest : ExpectSpec() {
             listOf(
                 UsersTable.tableName,
                 GamesTable.tableName,
-                UserGamesTable.tableName
+                UserGamesTable.tableName,
+                UserWishlistTable.tableName
             ).forEach {
                 exec("TRUNCATE TABLE $it CASCADE;")
             }
@@ -48,6 +50,7 @@ class DatabaseTest : ExpectSpec() {
                 UsersTable,
                 GamesTable,
                 UserGamesTable,
+                UserWishlistTable,
                 CountriesTable,
                 CurrenciesTable,
                 VersionTable
