@@ -1,15 +1,21 @@
 package me.alvr.pressurizer.server.games
 
+import com.google.gson.Gson
+import com.google.gson.JsonArray
+import com.google.gson.JsonParser
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.ExpectSpec
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.fromHttpToGmtDate
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.server.testing.handleRequest
 import me.alvr.pressurizer.utils.AuthJWT
 import me.alvr.pressurizer.database.Database
+import me.alvr.pressurizer.domain.Game
 import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.server.withTestPressurizer
+import java.lang.NumberFormatException
 
 @KtorExperimentalLocationsAPI
 class AllGamesTest : ExpectSpec({
@@ -34,7 +40,10 @@ class AllGamesTest : ExpectSpec({
                 handleRequest(HttpMethod.Get, "/games.json") {
                     addHeader("Authorization", "Bearer $token")
                 }.apply {
-                    println(response.content)
+                    val res = JsonParser().parse(response.content).asJsonObject
+
+                    res["games"].asJsonArray.toList() shouldBe emptyList()
+                    res["country"].asString shouldBe ""
                 }
             }
         }

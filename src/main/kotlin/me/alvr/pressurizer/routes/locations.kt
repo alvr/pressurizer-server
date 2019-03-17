@@ -29,3 +29,7 @@ class GamesRoute
 @KtorExperimentalLocationsAPI
 @Location("/wishlist.json")
 class WishlistRoute
+
+@KtorExperimentalLocationsAPI
+@Location("/shops.json")
+class ShopsRoute
