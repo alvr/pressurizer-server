@@ -1,6 +1,9 @@
 package me.alvr.pressurizer.utils
 
+import com.google.gson.Gson
+import com.google.gson.JsonElement
 import me.alvr.pressurizer.domain.Currency
+import me.alvr.pressurizer.domain.JSONConvertable
 import org.jsoup.Jsoup
 import java.math.BigDecimal
 
@@ -33,3 +36,5 @@ fun Iterable<BigDecimal>.average(): BigDecimal = this.sum() / this.count().toBig
 fun Float.round() = kotlin.math.round(this * 100) / 100
 
 fun BigDecimal.round(): BigDecimal = setScale(2, BigDecimal.ROUND_HALF_EVEN)
+
+inline fun <reified T : JSONConvertable> JsonElement.toDataClass(): T = Gson().fromJson(this, T::class.java)

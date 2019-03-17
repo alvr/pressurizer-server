@@ -10,5 +10,6 @@ import io.ktor.routing.Route
  */
 @KtorExperimentalLocationsAPI
 fun Route.wishlistsRoutes() {
+    getWishlist()
     updateWishlist()
 }

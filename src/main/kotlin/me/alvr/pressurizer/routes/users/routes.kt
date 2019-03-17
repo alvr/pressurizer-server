@@ -15,4 +15,6 @@ fun Route.usersRoutes() {
     token()
     countries()
     updateCountry()
+    getShopsWishlist()
+    updateShopsWishlist()
 }
