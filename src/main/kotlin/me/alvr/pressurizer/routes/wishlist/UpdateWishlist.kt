@@ -9,8 +9,10 @@ import io.ktor.locations.post
 import io.ktor.response.respond
 import io.ktor.routing.Route
 import me.alvr.pressurizer.database.Database
+import me.alvr.pressurizer.domain.AllSteamGames
 import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.routes.WishlistRoute
+import me.alvr.pressurizer.utils.ALL_GAMES
 import me.alvr.pressurizer.utils.WISHLIST
 import me.alvr.pressurizer.utils.client
 import me.alvr.pressurizer.utils.getWishlist
@@ -37,6 +39,13 @@ internal fun Route.updateWishlist() = authenticate {
             val games = mutableMapOf<WishlistStatus, List<String>>().apply {
                 put(WishlistStatus.NEW, new)
                 put(WishlistStatus.REMOVE, remove)
+            }
+
+            val response = client.get<AllSteamGames>(ALL_GAMES)
+            val gamesName = response.applist.apps.app.filter { it.appid in new }
+
+            gamesName.forEach {
+                Database.insertGame(it.appid, it.name)
             }
 
             Database.updateWishlist(user, games)
