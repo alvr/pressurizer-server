@@ -248,18 +248,6 @@ object Database {
     }
     //endregion [Currency Queries]
 
-    //region [Country Queries]
-    suspend fun getCountries() = withContext(dispatcher) {
-        transaction {
-            CountriesTable
-                .slice(CountriesTable.code, CountriesTable.name)
-                .selectAll()
-                .orderBy(CountriesTable.name)
-                .map { CountryMapper.map(it) }
-        }
-    }
-    //endregion [Country Queries]
-
     //region [Wishlist Queries]
     suspend fun getWishlist(user: SteamId) = withContext(dispatcher) {
         transaction {

@@ -4,6 +4,7 @@ import io.ktor.application.call
 import io.ktor.auth.authenticate
 import io.ktor.auth.principal
 import io.ktor.client.request.get
+import io.ktor.http.HttpStatusCode
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.post
 import io.ktor.response.respond
@@ -50,7 +51,7 @@ internal fun Route.updateWishlist() = authenticate {
 
             Database.updateWishlist(user, games)
 
-            call.respond(mapOf("ok" to true))
+            call.respond(HttpStatusCode.NoContent)
         }
     }
 }
