@@ -37,11 +37,12 @@ internal fun Route.fetchGames() = authenticate {
 
                 val inDatabase = Database.getGamesByUser(user)
 
-                val chunks: List<List<OwnedGames.Response.Game>>
-                try {
-                    chunks = ownedGames.chunked(ownedGames.size / 4)
-                } catch (_: NullPointerException) {
+                val chunks = runCatching {
+                    ownedGames.chunked(ownedGames.size / 4)
+                }.onFailure {
                     error("Can't find any games on this account.")
+                }.getOrElse {
+                    emptyList()
                 }
 
                 val newGames = ownedGames.size - inDatabase.size

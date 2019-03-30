@@ -4,6 +4,9 @@ import io.kotlintest.Spec
 import io.kotlintest.assertSoftly
 import io.kotlintest.inspectors.forAll
 import io.kotlintest.matchers.boolean.shouldBeFalse
+import io.kotlintest.matchers.collections.shouldContainAll
+import io.kotlintest.matchers.collections.shouldNotContainAll
+import io.kotlintest.matchers.string.shouldContain
 import io.kotlintest.shouldBe
 import io.kotlintest.shouldNotBe
 import io.kotlintest.shouldThrow
@@ -15,18 +18,20 @@ import me.alvr.pressurizer.database.tables.CountriesTable
 import me.alvr.pressurizer.database.tables.CurrenciesTable
 import me.alvr.pressurizer.database.tables.GamesTable
 import me.alvr.pressurizer.database.tables.UserGamesTable
+import me.alvr.pressurizer.database.tables.UserWishlistTable
 import me.alvr.pressurizer.database.tables.UsersTable
 import me.alvr.pressurizer.database.tables.VersionTable
+import me.alvr.pressurizer.domain.Country
 import me.alvr.pressurizer.domain.Game
 import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.domain.mappers.GameMapper
-import me.alvr.pressurizer.domain.mappers.UserGameMapper
+import me.alvr.pressurizer.routes.wishlist.WishlistStatus
 import me.alvr.pressurizer.utils.round
+import me.alvr.pressurizer.utils.shopsName
 import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import kotlin.random.Random
 
 class DatabaseTest : ExpectSpec() {
     override fun afterSpec(spec: Spec) {
@@ -34,7 +39,8 @@ class DatabaseTest : ExpectSpec() {
             listOf(
                 UsersTable.tableName,
                 GamesTable.tableName,
-                UserGamesTable.tableName
+                UserGamesTable.tableName,
+                UserWishlistTable.tableName
             ).forEach {
                 exec("TRUNCATE TABLE $it CASCADE;")
             }
@@ -45,11 +51,12 @@ class DatabaseTest : ExpectSpec() {
     override fun afterProject() {
         transaction {
             SchemaUtils.drop(
-                UsersTable,
-                GamesTable,
-                UserGamesTable,
                 CountriesTable,
                 CurrenciesTable,
+                GamesTable,
+                UserGamesTable,
+                UsersTable,
+                UserWishlistTable,
                 VersionTable
             )
         }
@@ -245,6 +252,88 @@ class DatabaseTest : ExpectSpec() {
                     newNine?.cost shouldBe 999_999_999.toBigDecimal().round()
                 }
             }
+
+            expect("game name is valid") {
+                val ids = List(100) { Random.nextInt(1, 1000) }
+
+                ids.forEach {
+                    assertSoftly {
+                        Database.getGameName(it.toString()) shouldBe "Game $it"
+                    }
+                }
+            }
+
+            expect("get user country") {
+                val country = Database.getCountry(SteamId("test_user_id_1"))
+
+                assertSoftly {
+                    country shouldBe Country("US", "United States")
+                }
+            }
+
+            expect("update user country") {
+                val newCountry = Country("ES", "Spain")
+                Database.updateCountry(SteamId("test_user_id_1"), newCountry)
+                val country = Database.getCountry(SteamId("test_user_id_1"))
+
+                assertSoftly {
+                    country shouldBe newCountry
+                }
+            }
+        }
+
+        context("wishlist table") {
+            val user = SteamId("user")
+            Database.insertUser(user)
+
+            expect("preferred shops") {
+                val shops = Database.getShopWishlist(user)
+
+                shops shouldBe "steam"
+            }
+
+            expect("update preferred shops") {
+                Database.updateShopWishlist(user, "steam,bundlestars,voidu")
+                val shops = Database.getShopWishlist(user)
+
+                assertSoftly {
+                    shops shouldContain "steam"
+                    shops shouldContain "bundlestars"
+                    shops shouldContain "voidu"
+
+                    shops.split(",").size shouldBe 3
+                }
+            }
+
+            expect("shops size") {
+                shopsName.size shouldBe 29
+            }
+
+            expect("update user wishlist") {
+                val wishlist = mutableMapOf<WishlistStatus, List<String>>()
+                val ids = List(100) { Random.nextInt(1, 1000).toString() }.toSet().toList()
+                val removedIds = ids.shuffled().take(30).toSet().toList()
+
+                wishlist[WishlistStatus.NEW] = ids
+                Database.updateWishlist(user, wishlist)
+                var userWishlist = Database.getWishlist(user)
+
+                assertSoftly {
+                    userWishlist.size shouldBe ids.size
+                    userWishlist shouldContainAll ids
+                }
+
+                wishlist.clear()
+
+                wishlist[WishlistStatus.REMOVE] = removedIds
+                Database.updateWishlist(user, wishlist)
+                userWishlist = Database.getWishlist(user)
+
+                assertSoftly {
+                    userWishlist.size shouldBe (ids.size - removedIds.size)
+                    userWishlist shouldNotContainAll removedIds
+                }
+            }
         }
     }
 
@@ -254,12 +343,4 @@ class DatabaseTest : ExpectSpec() {
         }
     }
 
-    private suspend fun allGamesByUser(user: SteamId) = withContext(Dispatchers.Default) {
-        transaction {
-            (UserGamesTable innerJoin GamesTable)
-                .select { (UserGamesTable.steamId eq user.id) and
-                    (GamesTable.appId eq UserGamesTable.appId) }
-                .map { UserGameMapper.map(it) }
-        }
-    }
 }

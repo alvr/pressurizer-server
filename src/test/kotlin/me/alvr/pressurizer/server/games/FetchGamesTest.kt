@@ -13,6 +13,7 @@ import me.alvr.pressurizer.utils.AuthJWT
 import me.alvr.pressurizer.database.Database
 import me.alvr.pressurizer.database.tables.GamesTable
 import me.alvr.pressurizer.database.tables.UserGamesTable
+import me.alvr.pressurizer.database.tables.UserWishlistTable
 import me.alvr.pressurizer.database.tables.UsersTable
 import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.server.withTestPressurizer
@@ -28,7 +29,8 @@ class FetchGamesTest : ExpectSpec() {
             listOf(
                 UsersTable.tableName,
                 GamesTable.tableName,
-                UserGamesTable.tableName
+                UserGamesTable.tableName,
+                UserWishlistTable.tableName
             ).forEach {
                 exec("TRUNCATE TABLE $it CASCADE;")
             }
@@ -45,39 +47,39 @@ class FetchGamesTest : ExpectSpec() {
 
             expect("insert new games") {
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Post, "/games.json") {
+                    handleRequest(HttpMethod.Post, "/games") {
                         addHeader("Authorization", "Bearer $token")
                     }.apply {
-                        response.content shouldContain "\"new\":70"
+                        response.content shouldContain "\"new\":72"
                         response.content shouldContain "\"updated\":0"
                     }
                 }
 
                 val userGames = Database.getGamesByUser(user)
 
-                userGames.size shouldBe 70
+                userGames.size shouldBe 72
             }
 
             expect("update existing games") {
                 updateAt(user)
 
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Post, "/games.json") {
+                    handleRequest(HttpMethod.Post, "/games") {
                         addHeader("Authorization", "Bearer $token")
                     }.apply {
                         response.content shouldContain "\"new\":0"
-                        response.content shouldContain "\"updated\":70"
+                        response.content shouldContain "\"updated\":72"
                     }
                 }
 
                 val userGames = Database.getGamesByUser(user)
 
-                userGames.size shouldBe 70
+                userGames.size shouldBe 72
             }
 
             expect("wait 6 hours for a new fetch") {
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Post, "/games.json") {
+                    handleRequest(HttpMethod.Post, "/games") {
                         addHeader("Authorization", "Bearer $token")
                     }.apply {
                         response.content shouldContain "\"hours\":5"
@@ -92,7 +94,7 @@ class FetchGamesTest : ExpectSpec() {
                 Database.insertUser(u)
 
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Post, "/games.json") {
+                    handleRequest(HttpMethod.Post, "/games") {
                         addHeader("Authorization", "Bearer $jwt")
                     }.apply {
                        assertSoftly {
@@ -107,7 +109,7 @@ class FetchGamesTest : ExpectSpec() {
         context("invalid token") {
             expect("return error 401") {
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Post, "/games.json") {
+                    handleRequest(HttpMethod.Post, "/games") {
                         addHeader("Authorization", "Bearer InvalidToken")
                     }.apply {
                         response.status() shouldBe HttpStatusCode.Unauthorized

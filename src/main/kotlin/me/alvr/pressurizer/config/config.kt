@@ -3,7 +3,6 @@ package me.alvr.pressurizer.config
 import com.jdiazcano.cfg4k.hocon.HoconConfigLoader
 import com.jdiazcano.cfg4k.loaders.EnvironmentConfigLoader
 import com.jdiazcano.cfg4k.loaders.SystemPropertyConfigLoader
-import com.jdiazcano.cfg4k.providers.DefaultConfigProvider
 import com.jdiazcano.cfg4k.providers.OverrideConfigProvider
 import com.jdiazcano.cfg4k.providers.ProxyConfigProvider
 import com.jdiazcano.cfg4k.providers.bind

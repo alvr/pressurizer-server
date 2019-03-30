@@ -1,4 +1,4 @@
-package me.alvr.pressurizer.routes.games
+package me.alvr.pressurizer.routes.users
 
 import io.ktor.application.call
 import io.ktor.auth.authenticate
@@ -9,13 +9,13 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import me.alvr.pressurizer.database.Database
 import me.alvr.pressurizer.domain.SteamId
-import me.alvr.pressurizer.routes.GamesRoute
+import me.alvr.pressurizer.routes.ShopsRoute
 
 @KtorExperimentalLocationsAPI
-internal fun Route.allGames() = authenticate {
-    get<GamesRoute> {
+internal fun Route.getShopsWishlist() = authenticate {
+    get<ShopsRoute> {
         call.principal<SteamId>()?.let { user ->
-            call.respond(Database.getGamesCompleteByUser(user))
+            call.respond(Database.getShopWishlist(user))
         }
     }
 }

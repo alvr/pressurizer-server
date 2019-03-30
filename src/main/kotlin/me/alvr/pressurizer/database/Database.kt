@@ -11,6 +11,7 @@ import me.alvr.pressurizer.database.tables.GamesTable
 import me.alvr.pressurizer.database.tables.UserGamesTable
 import me.alvr.pressurizer.database.tables.UsersTable
 import me.alvr.pressurizer.database.tables.VersionTable
+import me.alvr.pressurizer.database.tables.UserWishlistTable
 import me.alvr.pressurizer.domain.Country
 import me.alvr.pressurizer.domain.Game
 import me.alvr.pressurizer.domain.SteamId
@@ -18,11 +19,13 @@ import me.alvr.pressurizer.domain.mappers.CountryMapper
 import me.alvr.pressurizer.domain.mappers.CurrencyMapper
 import me.alvr.pressurizer.domain.mappers.UserGameMapper
 import me.alvr.pressurizer.domain.mappers.UserMapper
+import me.alvr.pressurizer.routes.wishlist.WishlistStatus
 import me.alvr.pressurizer.utils.average
 import me.alvr.pressurizer.utils.sum
 import org.jetbrains.exposed.sql.SchemaUtils.createMissingTablesAndColumns
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
@@ -59,11 +62,12 @@ object Database {
 
         transaction {
             createMissingTablesAndColumns(
-                UsersTable,
-                GamesTable,
-                UserGamesTable,
                 CountriesTable,
                 CurrenciesTable,
+                GamesTable,
+                UsersTable,
+                UserGamesTable,
+                UserWishlistTable,
                 VersionTable
             )
 
@@ -152,6 +156,16 @@ object Database {
                 .map { it[UserGamesTable.appId] }
         }
     }
+
+    suspend fun getGameName(appId: String) = withContext(dispatcher) {
+        transaction {
+            GamesTable
+                .slice(GamesTable.title)
+                .select { GamesTable.appId eq appId }
+                .map { it[GamesTable.title] }
+                .first()
+        }
+    }
     //endregion [Games Queries]
 
     //region [UserGames Queries]
@@ -234,15 +248,54 @@ object Database {
     }
     //endregion [Currency Queries]
 
-    //region [Country Queries]
-    suspend fun getCountries() = withContext(dispatcher) {
+    //region [Wishlist Queries]
+    suspend fun getWishlist(user: SteamId) = withContext(dispatcher) {
         transaction {
-            CountriesTable
-                .slice(CountriesTable.code, CountriesTable.name)
-                .selectAll()
-                .orderBy(CountriesTable.name)
-                .map { CountryMapper.map(it) }
+            UserWishlistTable
+                .slice(UserWishlistTable.appId)
+                .select { UserWishlistTable.steamId eq user.id }
+                .map { it[UserWishlistTable.appId] }
         }
     }
-    //endregion [Country Queries]
+
+    suspend fun updateWishlist(user: SteamId, games: Map<WishlistStatus, List<String>>) = withContext(dispatcher) {
+        games[WishlistStatus.NEW]?.forEach { game ->
+            transaction {
+                UserWishlistTable
+                    .insertIgnore {
+                        it[UserWishlistTable.steamId] = user.id
+                        it[UserWishlistTable.appId] = game
+                    }
+            }
+        }
+
+        games[WishlistStatus.REMOVE]?.forEach { game ->
+            transaction {
+                UserWishlistTable
+                    .deleteWhere {
+                        (UserWishlistTable.steamId eq user.id) and
+                                (UserWishlistTable.appId eq game)
+                    }
+            }
+        }
+    }
+
+    suspend fun getShopWishlist(user: SteamId) = withContext(dispatcher) {
+        transaction {
+            UsersTable
+                .slice(UsersTable.shops)
+                .select { UsersTable.steamId eq user.id }
+                .map { it[UsersTable.shops] }
+                .joinToString(",") { it }
+        }
+    }
+
+    suspend fun updateShopWishlist(user: SteamId, shops: String) = withContext(dispatcher) {
+        transaction {
+            UsersTable.update({ UsersTable.steamId eq user.id }) {
+                it[UsersTable.shops] = shops
+            }
+        }
+    }
+    //endregion [Wishlist Queries]
 }

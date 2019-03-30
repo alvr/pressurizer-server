@@ -2,7 +2,7 @@ package me.alvr.pressurizer.server.games
 
 import com.google.gson.Gson
 import io.kotlintest.Spec
-import io.kotlintest.TestCase
+import io.kotlintest.TestCaseOrder
 import io.kotlintest.matchers.boolean.shouldBeTrue
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.ExpectSpec
@@ -13,11 +13,11 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.setBody
-import kotlinx.coroutines.runBlocking
 import me.alvr.pressurizer.utils.AuthJWT
 import me.alvr.pressurizer.database.Database
 import me.alvr.pressurizer.database.tables.GamesTable
 import me.alvr.pressurizer.database.tables.UserGamesTable
+import me.alvr.pressurizer.database.tables.UserWishlistTable
 import me.alvr.pressurizer.database.tables.UsersTable
 import me.alvr.pressurizer.domain.Game
 import me.alvr.pressurizer.domain.SteamId
@@ -30,12 +30,15 @@ class UpdateGamesTest : ExpectSpec() {
     private val user = SteamId("76561198319326905")
     private val token = AuthJWT.sign(user)
 
+    override fun testCaseOrder(): TestCaseOrder? = TestCaseOrder.Sequential
+
     override fun afterSpec(spec: Spec) {
         transaction {
             listOf(
                 UsersTable.tableName,
                 GamesTable.tableName,
-                UserGamesTable.tableName
+                UserGamesTable.tableName,
+                UserWishlistTable.tableName
             ).forEach {
                 exec("TRUNCATE TABLE $it CASCADE;")
             }
@@ -43,19 +46,21 @@ class UpdateGamesTest : ExpectSpec() {
         }
     }
 
-    override fun beforeTest(testCase: TestCase) {
-        runBlocking {
-            Database.insertUser(user, null)
+    init {
+        context("init games") {
+            expect("NoContent return") {
+                Database.insertUser(user, null)
 
-            withTestPressurizer {
-                handleRequest(HttpMethod.Post, "/games.json") {
-                    addHeader("Authorization", "Bearer $token")
+                withTestPressurizer {
+                    handleRequest(HttpMethod.Post, "/games") {
+                        addHeader("Authorization", "Bearer $token")
+                    }.apply {
+                        response.status() shouldBe HttpStatusCode.OK
+                    }
                 }
             }
         }
-    }
 
-    init {
         context("update games") {
             expect("change game is finished") {
                 var allGames = Database.getGamesCompleteByUser(user)
@@ -68,10 +73,12 @@ class UpdateGamesTest : ExpectSpec() {
                 )
 
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Patch, "/games.json") {
+                    handleRequest(HttpMethod.Patch, "/games") {
                         addHeader("Authorization", "Bearer $token")
                         addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                         setBody(Gson().toJson(updateFinished))
+                    }.apply {
+                        response.status() shouldBe HttpStatusCode.NoContent
                     }
                 }
 
@@ -94,10 +101,12 @@ class UpdateGamesTest : ExpectSpec() {
                 )
 
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Patch, "/games.json") {
+                    handleRequest(HttpMethod.Patch, "/games") {
                         addHeader("Authorization", "Bearer $token")
                         addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                         setBody(Gson().toJson(updatePlaytime))
+                    }.apply {
+                        response.status() shouldBe HttpStatusCode.NoContent
                     }
                 }
 
@@ -121,10 +130,12 @@ class UpdateGamesTest : ExpectSpec() {
                     )
 
                     withTestPressurizer {
-                        handleRequest(HttpMethod.Patch, "/games.json") {
+                        handleRequest(HttpMethod.Patch, "/games") {
                             addHeader("Authorization", "Bearer $token")
                             addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                             setBody(Gson().toJson(updateCost))
+                        }.apply {
+                            response.status() shouldBe HttpStatusCode.NoContent
                         }
                     }
 
@@ -147,10 +158,12 @@ class UpdateGamesTest : ExpectSpec() {
                     )
 
                     withTestPressurizer {
-                        handleRequest(HttpMethod.Patch, "/games.json") {
+                        handleRequest(HttpMethod.Patch, "/games") {
                             addHeader("Authorization", "Bearer $token")
                             addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                             setBody(Gson().toJson(updateCost))
+                        }.apply {
+                            response.status() shouldBe HttpStatusCode.NoContent
                         }
                     }
 
@@ -173,10 +186,12 @@ class UpdateGamesTest : ExpectSpec() {
                     )
 
                     withTestPressurizer {
-                        handleRequest(HttpMethod.Patch, "/games.json") {
+                        handleRequest(HttpMethod.Patch, "/games") {
                             addHeader("Authorization", "Bearer $token")
                             addHeader(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                             setBody(Gson().toJson(updateCost))
+                        }.apply {
+                            response.status() shouldBe HttpStatusCode.NoContent
                         }
                     }
 
@@ -193,7 +208,7 @@ class UpdateGamesTest : ExpectSpec() {
         context("invalid token") {
             expect("return error 401") {
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Patch, "/games.json") {
+                    handleRequest(HttpMethod.Patch, "/games") {
                         addHeader("Authorization", "Bearer InvalidToken")
                     }.apply {
                         response.status() shouldBe HttpStatusCode.Unauthorized

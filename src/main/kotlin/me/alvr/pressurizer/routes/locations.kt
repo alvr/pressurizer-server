@@ -13,14 +13,23 @@ class LoginRoute
 class LoginAuthRoute
 
 @KtorExperimentalLocationsAPI
-@Location("/token.json")
+@Location("/token")
 class TokenRoute
 
 @KtorExperimentalLocationsAPI
-@Location("/country.json")
-class CountryRoute
+@Location("/account")
+class AccountRoute
 
 //Games
 @KtorExperimentalLocationsAPI
-@Location("/games.json")
+@Location("/games")
 class GamesRoute
+
+//Wishlist
+@KtorExperimentalLocationsAPI
+@Location("/wishlist")
+class WishlistRoute
+
+@KtorExperimentalLocationsAPI
+@Location("/shops")
+class ShopsRoute

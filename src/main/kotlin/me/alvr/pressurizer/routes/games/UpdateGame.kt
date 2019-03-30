@@ -3,6 +3,7 @@ package me.alvr.pressurizer.routes.games
 import io.ktor.application.call
 import io.ktor.auth.authenticate
 import io.ktor.auth.principal
+import io.ktor.http.HttpStatusCode
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.patch
 import io.ktor.request.receive
@@ -19,7 +20,7 @@ internal fun Route.updateGame() = authenticate {
         call.principal<SteamId>()?.let { user ->
             val newData = call.receive<Game>()
             Database.updateUserGame(user, newData)
-            call.respond(mapOf("ok" to true))
+            call.respond(HttpStatusCode.NoContent)
         }
     }
 }
