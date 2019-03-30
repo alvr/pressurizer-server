@@ -22,14 +22,13 @@ import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import me.alvr.pressurizer.utils.AuthJWT
 import me.alvr.pressurizer.config.serverConfig
 import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.routes.games.gamesRoutes
 import me.alvr.pressurizer.routes.users.usersRoutes
 import me.alvr.pressurizer.routes.wishlist.wishlistsRoutes
+import me.alvr.pressurizer.utils.AuthJWT
 import me.alvr.pressurizer.utils.StatusPageError
-import java.time.Duration
 
 /**
  * Configuration of the server itself.

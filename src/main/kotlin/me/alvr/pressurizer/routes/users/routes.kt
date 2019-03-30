@@ -13,8 +13,7 @@ fun Route.usersRoutes() {
     login()
     auth()
     token()
-    countries()
-    updateCountry()
+    account()
+    updateAccount()
     getShopsWishlist()
-    updateShopsWishlist()
 }

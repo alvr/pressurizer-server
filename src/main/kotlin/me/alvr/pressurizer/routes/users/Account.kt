@@ -12,12 +12,11 @@ import io.ktor.response.respond
 import io.ktor.routing.Route
 import me.alvr.pressurizer.database.Database
 import me.alvr.pressurizer.domain.AccountSettings
-import me.alvr.pressurizer.domain.Country
 import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.routes.AccountRoute
 
 @KtorExperimentalLocationsAPI
-internal fun Route.countries() = authenticate {
+internal fun Route.account() = authenticate {
     get<AccountRoute> {
         call.principal<SteamId>()?.let { user ->
             val userCountry = Database.getCountry(user)
@@ -33,7 +32,7 @@ internal fun Route.countries() = authenticate {
 }
 
 @KtorExperimentalLocationsAPI
-internal fun Route.updateCountry() = authenticate {
+internal fun Route.updateAccount() = authenticate {
     patch<AccountRoute> {
         call.principal<SteamId>()?.let { user ->
             val newData = call.receive<AccountSettings>()

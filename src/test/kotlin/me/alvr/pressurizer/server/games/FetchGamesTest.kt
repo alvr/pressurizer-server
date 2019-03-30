@@ -47,39 +47,39 @@ class FetchGamesTest : ExpectSpec() {
 
             expect("insert new games") {
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Post, "/games.json") {
+                    handleRequest(HttpMethod.Post, "/games") {
                         addHeader("Authorization", "Bearer $token")
                     }.apply {
-                        response.content shouldContain "\"new\":71"
+                        response.content shouldContain "\"new\":72"
                         response.content shouldContain "\"updated\":0"
                     }
                 }
 
                 val userGames = Database.getGamesByUser(user)
 
-                userGames.size shouldBe 71
+                userGames.size shouldBe 72
             }
 
             expect("update existing games") {
                 updateAt(user)
 
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Post, "/games.json") {
+                    handleRequest(HttpMethod.Post, "/games") {
                         addHeader("Authorization", "Bearer $token")
                     }.apply {
                         response.content shouldContain "\"new\":0"
-                        response.content shouldContain "\"updated\":71"
+                        response.content shouldContain "\"updated\":72"
                     }
                 }
 
                 val userGames = Database.getGamesByUser(user)
 
-                userGames.size shouldBe 71
+                userGames.size shouldBe 72
             }
 
             expect("wait 6 hours for a new fetch") {
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Post, "/games.json") {
+                    handleRequest(HttpMethod.Post, "/games") {
                         addHeader("Authorization", "Bearer $token")
                     }.apply {
                         response.content shouldContain "\"hours\":5"
@@ -94,7 +94,7 @@ class FetchGamesTest : ExpectSpec() {
                 Database.insertUser(u)
 
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Post, "/games.json") {
+                    handleRequest(HttpMethod.Post, "/games") {
                         addHeader("Authorization", "Bearer $jwt")
                     }.apply {
                        assertSoftly {
@@ -109,7 +109,7 @@ class FetchGamesTest : ExpectSpec() {
         context("invalid token") {
             expect("return error 401") {
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Post, "/games.json") {
+                    handleRequest(HttpMethod.Post, "/games") {
                         addHeader("Authorization", "Bearer InvalidToken")
                     }.apply {
                         response.status() shouldBe HttpStatusCode.Unauthorized
