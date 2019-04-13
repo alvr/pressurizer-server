@@ -7,11 +7,13 @@ import io.kotlintest.shouldBe
 import io.kotlintest.specs.ExpectSpec
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.server.testing.handleRequest
-import me.alvr.pressurizer.auth.AuthJWT
+import me.alvr.pressurizer.utils.AuthJWT
 import me.alvr.pressurizer.database.Database
 import me.alvr.pressurizer.database.tables.GamesTable
 import me.alvr.pressurizer.database.tables.UserGamesTable
+import me.alvr.pressurizer.database.tables.UserWishlistTable
 import me.alvr.pressurizer.database.tables.UsersTable
 import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.server.withTestPressurizer
@@ -20,13 +22,15 @@ import org.jetbrains.exposed.sql.update
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
+@KtorExperimentalLocationsAPI
 class FetchGamesTest : ExpectSpec() {
     override fun afterSpec(spec: Spec) {
         transaction {
             listOf(
                 UsersTable.tableName,
                 GamesTable.tableName,
-                UserGamesTable.tableName
+                UserGamesTable.tableName,
+                UserWishlistTable.tableName
             ).forEach {
                 exec("TRUNCATE TABLE $it CASCADE;")
             }
@@ -43,39 +47,39 @@ class FetchGamesTest : ExpectSpec() {
 
             expect("insert new games") {
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Post, "/fetchGames") {
+                    handleRequest(HttpMethod.Post, "/games") {
                         addHeader("Authorization", "Bearer $token")
                     }.apply {
-                        response.content shouldContain "\"new\":70"
+                        response.content shouldContain "\"new\":72"
                         response.content shouldContain "\"updated\":0"
                     }
                 }
 
                 val userGames = Database.getGamesByUser(user)
 
-                userGames.size shouldBe 70
+                userGames.size shouldBe 72
             }
 
             expect("update existing games") {
                 updateAt(user)
 
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Post, "/fetchGames") {
+                    handleRequest(HttpMethod.Post, "/games") {
                         addHeader("Authorization", "Bearer $token")
                     }.apply {
                         response.content shouldContain "\"new\":0"
-                        response.content shouldContain "\"updated\":70"
+                        response.content shouldContain "\"updated\":72"
                     }
                 }
 
                 val userGames = Database.getGamesByUser(user)
 
-                userGames.size shouldBe 70
+                userGames.size shouldBe 72
             }
 
             expect("wait 6 hours for a new fetch") {
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Post, "/fetchGames") {
+                    handleRequest(HttpMethod.Post, "/games") {
                         addHeader("Authorization", "Bearer $token")
                     }.apply {
                         response.content shouldContain "\"hours\":5"
@@ -90,7 +94,7 @@ class FetchGamesTest : ExpectSpec() {
                 Database.insertUser(u)
 
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Post, "/fetchGames") {
+                    handleRequest(HttpMethod.Post, "/games") {
                         addHeader("Authorization", "Bearer $jwt")
                     }.apply {
                        assertSoftly {
@@ -105,7 +109,7 @@ class FetchGamesTest : ExpectSpec() {
         context("invalid token") {
             expect("return error 401") {
                 withTestPressurizer {
-                    handleRequest(HttpMethod.Post, "/fetchGames") {
+                    handleRequest(HttpMethod.Post, "/games") {
                         addHeader("Authorization", "Bearer InvalidToken")
                     }.apply {
                         response.status() shouldBe HttpStatusCode.Unauthorized
@@ -118,7 +122,7 @@ class FetchGamesTest : ExpectSpec() {
     private fun updateAt(user: SteamId) {
         transaction {
             UsersTable.update({ UsersTable.steamId eq user.id }) {
-                it[UsersTable.updatedAt] = Instant.now().minus(1L, ChronoUnit.DAYS)
+                it[updatedAt] = Instant.now().minus(1L, ChronoUnit.DAYS)
             }
         }
     }

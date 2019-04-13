@@ -3,15 +3,15 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "me.alvr"
-version = "0.3.0"
+version = "0.5.0"
 
 object Versions {
-    const val KONF = "0.12"
-    const val KOTLIN = "1.3.21"
-    const val EXPOSED = "0.12.2"
+    const val CFG4K = "0.9.3"
+    const val KOTLIN = "1.3.30"
+    const val EXPOSED = "0.13.6"
     const val HIKARI = "3.3.1"
     const val JSOUP = "1.11.3"
-    const val KOTLINTEST = "3.2.1"
+    const val KOTLINTEST = "3.3.1"
     const val KTOR = "1.1.3"
     const val LOGBACK = "1.2.3"
     const val MOCKSERVER = "5.5.1"
@@ -24,7 +24,7 @@ plugins {
     application
     jacoco
     kotlin("jvm") version "1.3.21"
-    id("com.github.johnrengelman.shadow") version "4.0.4"
+    id("com.github.johnrengelman.shadow") version "5.0.0"
     id("com.adarshr.test-logger") version "1.6.0"
 }
 
@@ -45,19 +45,14 @@ dependencies {
             exclude("org.jetbrains.kotlinx")
         }
         implementation("$k-gson:${Versions.KTOR}")
+        implementation("$k-locations:${Versions.KTOR}")
         implementation("$k-server-netty:${Versions.KTOR}")
         testImplementation("$k-server-test-host:${Versions.KTOR}")
     }
 
-    implementation("com.uchuhimo", "konf", Versions.KONF) {
-        exclude("com.fasterxml.jackson.core")
-        exclude("com.moandjiezana.toml")
-        exclude("org.apiguardian")
-        exclude("org.dom4j")
-        exclude("org.eclipse.jgit")
-        exclude("org.yaml")
-    }
-
+    implementation("com.jdiazcano.cfg4k", "cfg4k-core", Versions.CFG4K)
+    implementation("com.jdiazcano.cfg4k", "cfg4k-hocon", Versions.CFG4K)
+    
     implementation("org.jetbrains.exposed", "exposed", Versions.EXPOSED)
     implementation("org.postgresql", "postgresql", Versions.POSTGRES)
     implementation("com.zaxxer", "HikariCP", Versions.HIKARI)
@@ -77,7 +72,7 @@ application {
 }
 
 jacoco {
-    toolVersion = "0.8.2"
+    toolVersion = "0.8.3"
 }
 
 tasks {

@@ -12,6 +12,8 @@ import io.ktor.gson.gson
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.locations.KtorExperimentalLocationsAPI
+import io.ktor.locations.Locations
 import io.ktor.request.uri
 import io.ktor.response.respond
 import io.ktor.response.respondText
@@ -20,12 +22,12 @@ import io.ktor.routing.route
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import me.alvr.pressurizer.auth.AuthJWT
-import me.alvr.pressurizer.config.ServerSpec
-import me.alvr.pressurizer.config.config
+import me.alvr.pressurizer.config.serverConfig
 import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.routes.games.gamesRoutes
 import me.alvr.pressurizer.routes.users.usersRoutes
+import me.alvr.pressurizer.routes.wishlist.wishlistsRoutes
+import me.alvr.pressurizer.utils.AuthJWT
 import me.alvr.pressurizer.utils.StatusPageError
 
 /**
@@ -33,6 +35,7 @@ import me.alvr.pressurizer.utils.StatusPageError
  *
  * @receiver Application of type [Application]
  */
+@KtorExperimentalLocationsAPI
 fun Application.pressurizer() {
     install(Authentication) {
         jwt {
@@ -53,9 +56,10 @@ fun Application.pressurizer() {
         method(HttpMethod.Post)
         method(HttpMethod.Put)
         header(HttpHeaders.Authorization)
+        host(serverConfig.client().authority, listOf(serverConfig.client().scheme))
         allowCredentials = true
-        anyHost()
     }
+    install(Locations)
     install(StatusPages) {
         exception<IllegalStateException> {
             call.respond(
@@ -79,6 +83,7 @@ fun Application.pressurizer() {
     routing {
         usersRoutes()
         gamesRoutes()
+        wishlistsRoutes()
 
         get("/") {
             call.respondText { "Pressurizer" }
@@ -95,11 +100,12 @@ fun Application.pressurizer() {
 /**
  * Main entry point
  */
+@KtorExperimentalLocationsAPI
 fun main() {
     embeddedServer(
         Netty,
-        host = config[ServerSpec.host],
-        port = config[ServerSpec.port],
+        host = serverConfig.host(),
+        port = serverConfig.port(),
         module = Application::pressurizer
     ).start(true)
 }

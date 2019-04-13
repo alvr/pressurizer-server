@@ -1,5 +1,6 @@
 package me.alvr.pressurizer.routes.users
 
+import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.routing.Route
 
 /**
@@ -7,10 +8,12 @@ import io.ktor.routing.Route
  *
  * @receiver Route
  */
+@KtorExperimentalLocationsAPI
 fun Route.usersRoutes() {
     login()
     auth()
     token()
-    countries()
-    updateCountry()
+    account()
+    updateAccount()
+    getShopsWishlist()
 }

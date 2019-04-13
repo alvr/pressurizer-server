@@ -8,9 +8,9 @@ import io.kotlintest.specs.ExpectSpec
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.formUrlEncode
+import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.server.testing.handleRequest
-import me.alvr.pressurizer.config.ServerSpec
-import me.alvr.pressurizer.config.config
+import me.alvr.pressurizer.config.serverConfig
 import me.alvr.pressurizer.server.withTestPressurizer
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.model.HttpRequest.request
@@ -19,10 +19,13 @@ import org.mockserver.model.NottableString.not
 import org.mockserver.model.NottableString.string
 import org.mockserver.model.Parameter.param
 
+@KtorExperimentalLocationsAPI
 class DoLoginTest : ExpectSpec() {
 
+    private lateinit var mockServer: ClientAndServer
+
     override fun beforeSpec(spec: Spec) {
-        val mockServer = ClientAndServer.startClientAndServer(6969)
+        mockServer = ClientAndServer.startClientAndServer(6969)
 
         mockServer.`when`(
             request()
@@ -67,6 +70,10 @@ class DoLoginTest : ExpectSpec() {
         )
     }
 
+    override fun afterSpec(spec: Spec) {
+        mockServer.stop()
+    }
+
     init {
         context("valid login") {
             expect("return to client url") {
@@ -85,7 +92,7 @@ class DoLoginTest : ExpectSpec() {
 
                 withTestPressurizer {
                     handleRequest(HttpMethod.Get, "/login/auth?${params.formUrlEncode()}").apply {
-                        response.headers["Location"] shouldContain config[ServerSpec.client].toString()
+                        response.headers["Location"] shouldContain serverConfig.client().toString()
                     }
                 }
             }

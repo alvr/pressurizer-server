@@ -30,11 +30,10 @@ private class InstantColumnType(time: Boolean) : ColumnType() {
     }
 
     override fun valueFromDB(value: Any): Any {
-        val fromDb = when (value) {
+        return when (val fromDb = when (value) {
             is Instant -> delegate.valueFromDB(value.toDateTime())
             else -> delegate.valueFromDB(value)
-        }
-        return when (fromDb) {
+        }) {
             is DateTime -> fromDb.toJavaInstant()
             else -> error("Failed to convert value to Instant")
         }
