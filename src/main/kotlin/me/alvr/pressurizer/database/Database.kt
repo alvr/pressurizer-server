@@ -9,11 +9,12 @@ import me.alvr.pressurizer.database.tables.CountriesTable
 import me.alvr.pressurizer.database.tables.CurrenciesTable
 import me.alvr.pressurizer.database.tables.GamesTable
 import me.alvr.pressurizer.database.tables.UserGamesTable
+import me.alvr.pressurizer.database.tables.UserWishlistTable
 import me.alvr.pressurizer.database.tables.UsersTable
 import me.alvr.pressurizer.database.tables.VersionTable
-import me.alvr.pressurizer.database.tables.UserWishlistTable
 import me.alvr.pressurizer.domain.Country
 import me.alvr.pressurizer.domain.Game
+import me.alvr.pressurizer.domain.ImportGame
 import me.alvr.pressurizer.domain.SteamId
 import me.alvr.pressurizer.domain.mappers.CountryMapper
 import me.alvr.pressurizer.domain.mappers.CurrencyMapper
@@ -26,6 +27,7 @@ import org.jetbrains.exposed.sql.SchemaUtils.createMissingTablesAndColumns
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.insertIgnore
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
@@ -183,7 +185,6 @@ object Database {
 
             val stats = when {
                 games.isNotEmpty() -> mapOf<String, Number>(
-                    "totalGames" to games.size,
                     "totalCost" to totalCostSum,
                     "totalTime" to totalTimeSum,
                     "avgCost" to totalCost.average(),
@@ -193,16 +194,7 @@ object Database {
                 else -> emptyMap()
             }
 
-            val country = when {
-                games.isNotEmpty() -> UsersTable
-                    .slice(UsersTable.country)
-                    .select { UsersTable.steamId eq user.id }
-                    .map { it[UsersTable.country] }
-                    .first()
-                else -> ""
-            }
-
-            mapOf("games" to games, "stats" to stats, "country" to country)
+            mapOf("games" to games, "stats" to stats)
         }
     }
 
@@ -213,6 +205,22 @@ object Database {
                 it[appId] = gameId
                 it[cost] = price
                 it[timePlayed] = time
+            }
+        }
+    }
+
+    suspend fun importUserGame(user: SteamId, game: ImportGame, time: Int) = withContext(dispatcher) {
+        transaction {
+            UserGamesTable.insert {
+                it[steamId] = user.id
+                it[appId] = game.appId
+                it[cost] = when {
+                    game.cost < BigDecimal.ZERO -> BigDecimal.ZERO
+                    game.cost > 999999999.toBigDecimal() -> 999999999.toBigDecimal()
+                    else -> game.cost
+                }
+                it[timePlayed] = time
+                it[finished] = game.finished
             }
         }
     }
@@ -230,6 +238,15 @@ object Database {
                 game.timePlayed?.let { new[timePlayed] = it }
                 game.finished?.let { new[finished] = it }
             }
+        }
+    }
+
+    suspend fun exportData(user: SteamId) = withContext(dispatcher) {
+        transaction {
+            (UserGamesTable innerJoin GamesTable)
+                .select { UserGamesTable.steamId eq user.id }
+                .orderBy(UserGamesTable.cost, SortOrder.DESC)
+                .map { UserGameMapper.map(it) }
         }
     }
     //endregion [UserGames Queries]
