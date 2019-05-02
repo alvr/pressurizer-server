@@ -140,6 +140,12 @@ object Database {
             }
         }
     }
+
+    suspend fun deleteUser(user: SteamId) = withContext(dispatcher) {
+        transaction {
+            UsersTable.deleteWhere { UsersTable.steamId eq user.id }
+        }
+    }
     //endregion [User Queries]
 
     //region [Games Queries]
@@ -185,7 +191,6 @@ object Database {
 
             val stats = when {
                 games.isNotEmpty() -> mapOf<String, Number>(
-                    "totalGames" to games.size,
                     "totalCost" to totalCostSum,
                     "totalTime" to totalTimeSum,
                     "avgCost" to totalCost.average(),
@@ -195,16 +200,7 @@ object Database {
                 else -> emptyMap()
             }
 
-            val country = when {
-                games.isNotEmpty() -> UsersTable
-                    .slice(UsersTable.country)
-                    .select { UsersTable.steamId eq user.id }
-                    .map { it[UsersTable.country] }
-                    .first()
-                else -> ""
-            }
-
-            mapOf("games" to games, "stats" to stats, "country" to country)
+            mapOf("games" to games, "stats" to stats)
         }
     }
 
@@ -254,14 +250,9 @@ object Database {
     suspend fun exportData(user: SteamId) = withContext(dispatcher) {
         transaction {
             (UserGamesTable innerJoin GamesTable)
-                .slice(listOf(UserGamesTable.appId, UserGamesTable.cost, UserGamesTable.finished))
                 .select { UserGamesTable.steamId eq user.id }
                 .orderBy(UserGamesTable.cost, SortOrder.DESC)
-                .map { ImportGame(
-                    appId = it[UserGamesTable.appId],
-                    cost = it[UserGamesTable.cost],
-                    finished = it[UserGamesTable.finished]
-                ) }
+                .map { UserGameMapper.map(it) }
         }
     }
     //endregion [UserGames Queries]

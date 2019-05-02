@@ -5,6 +5,7 @@ import io.ktor.auth.authenticate
 import io.ktor.auth.principal
 import io.ktor.http.HttpStatusCode
 import io.ktor.locations.KtorExperimentalLocationsAPI
+import io.ktor.locations.delete
 import io.ktor.locations.get
 import io.ktor.locations.patch
 import io.ktor.request.receive
@@ -40,6 +41,15 @@ internal fun Route.updateAccount() = authenticate {
             Database.updateCountry(user, newData.country)
             Database.updateShopWishlist(user, newData.shops.joinToString(","))
             call.respond(HttpStatusCode.NoContent)
+        }
+    }
+}
+
+@KtorExperimentalLocationsAPI
+internal fun Route.deleteAccount() = authenticate {
+    delete<AccountRoute> {
+        call.principal<SteamId>()?.let { user ->
+            call.respond(Database.deleteUser(user))
         }
     }
 }

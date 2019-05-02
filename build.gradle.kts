@@ -3,7 +3,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 group = "me.alvr"
-version = "0.5.0"
+version = "0.8.0"
 
 object Versions {
     const val CFG4K = "0.9.3"

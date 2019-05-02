@@ -51,8 +51,6 @@ internal fun Route.import() = authenticate {
                 part.dispose()
             }
 
-            println(import)
-
             val userGames = Database.getGamesByUser(user)
             val importIds = import.map { it.appId }
 

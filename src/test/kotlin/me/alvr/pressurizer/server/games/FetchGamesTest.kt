@@ -50,14 +50,14 @@ class FetchGamesTest : ExpectSpec() {
                     handleRequest(HttpMethod.Post, "/games") {
                         addHeader("Authorization", "Bearer $token")
                     }.apply {
-                        response.content shouldContain "\"new\":72"
+                        response.content shouldContain "\"new\":78"
                         response.content shouldContain "\"updated\":0"
                     }
                 }
 
                 val userGames = Database.getGamesByUser(user)
 
-                userGames.size shouldBe 72
+                userGames.size shouldBe 78
             }
 
             expect("update existing games") {
@@ -68,13 +68,13 @@ class FetchGamesTest : ExpectSpec() {
                         addHeader("Authorization", "Bearer $token")
                     }.apply {
                         response.content shouldContain "\"new\":0"
-                        response.content shouldContain "\"updated\":72"
+                        response.content shouldContain "\"updated\":78"
                     }
                 }
 
                 val userGames = Database.getGamesByUser(user)
 
-                userGames.size shouldBe 72
+                userGames.size shouldBe 78
             }
 
             expect("wait 6 hours for a new fetch") {

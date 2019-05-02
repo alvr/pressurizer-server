@@ -38,7 +38,6 @@ class AllGamesTest : ExpectSpec({
                     val res = JsonParser().parse(response.content).asJsonObject
 
                     res["games"].asJsonArray.toList() shouldBe emptyList()
-                    res["country"].asString shouldBe ""
                 }
             }
         }

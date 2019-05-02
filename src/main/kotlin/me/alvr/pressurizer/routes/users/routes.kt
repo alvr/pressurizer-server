@@ -15,5 +15,6 @@ fun Route.usersRoutes() {
     token()
     account()
     updateAccount()
+    deleteAccount()
     getShopsWishlist()
 }
