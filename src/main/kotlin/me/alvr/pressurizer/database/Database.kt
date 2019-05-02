@@ -140,6 +140,12 @@ object Database {
             }
         }
     }
+
+    suspend fun deleteUser(user: SteamId) = withContext(dispatcher) {
+        transaction {
+            UsersTable.deleteWhere { UsersTable.steamId eq user.id }
+        }
+    }
     //endregion [User Queries]
 
     //region [Games Queries]
