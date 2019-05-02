@@ -38,7 +38,11 @@ internal fun Route.fetchGames() = authenticate {
                 val inDatabase = Database.getGamesByUser(user)
 
                 val chunks = runCatching {
-                    ownedGames.chunked(ownedGames.size / 4)
+                    val numOfChunks = if (ownedGames.size / 4 < 1)
+                        1
+                    else
+                        ownedGames.size / 4
+                    ownedGames.chunked(numOfChunks)
                 }.onFailure {
                     error("Can't find any games on this account.")
                 }.getOrElse {

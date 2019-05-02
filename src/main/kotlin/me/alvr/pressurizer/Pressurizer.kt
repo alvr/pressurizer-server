@@ -24,6 +24,7 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import me.alvr.pressurizer.config.serverConfig
 import me.alvr.pressurizer.domain.SteamId
+import me.alvr.pressurizer.routes.export.exportRoutes
 import me.alvr.pressurizer.routes.games.gamesRoutes
 import me.alvr.pressurizer.routes.users.usersRoutes
 import me.alvr.pressurizer.routes.wishlist.wishlistsRoutes
@@ -46,8 +47,7 @@ fun Application.pressurizer() {
         }
     }
     install(ContentNegotiation) {
-        gson {
-        }
+        gson {}
     }
     install(CORS) {
         method(HttpMethod.Delete)
@@ -84,6 +84,7 @@ fun Application.pressurizer() {
         usersRoutes()
         gamesRoutes()
         wishlistsRoutes()
+        exportRoutes()
 
         get("/") {
             call.respondText { "Pressurizer" }
