@@ -6,7 +6,7 @@ import io.ktor.auth.authenticate
 import io.ktor.auth.principal
 import io.ktor.locations.KtorExperimentalLocationsAPI
 import io.ktor.locations.get
-import io.ktor.response.respondText
+import io.ktor.response.respond
 import io.ktor.routing.Route
 import me.alvr.pressurizer.database.Database
 import me.alvr.pressurizer.domain.SteamId
@@ -20,7 +20,7 @@ internal fun Route.export() = authenticate {
 
             val json = Gson().toJson(data)
 
-            call.respondText(json)
+            call.respond(json)
         }
     }
 }
