@@ -9,4 +9,4 @@ data class Game(
     val timePlayed: Int? = null,
     val costHours: BigDecimal? = BigDecimal.ZERO,
     val finished: Boolean? = null
-)
+) : JSONConvertable

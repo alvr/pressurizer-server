@@ -33,3 +33,11 @@ class WishlistRoute
 @KtorExperimentalLocationsAPI
 @Location("/shops")
 class ShopsRoute
+
+@KtorExperimentalLocationsAPI
+@Location("/import")
+class ImportRoute
+
+@KtorExperimentalLocationsAPI
+@Location("/export")
+class ExportRoute

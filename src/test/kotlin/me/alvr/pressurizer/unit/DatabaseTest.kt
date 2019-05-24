@@ -5,6 +5,7 @@ import io.kotlintest.assertSoftly
 import io.kotlintest.inspectors.forAll
 import io.kotlintest.matchers.boolean.shouldBeFalse
 import io.kotlintest.matchers.collections.shouldContainAll
+import io.kotlintest.matchers.collections.shouldHaveSize
 import io.kotlintest.matchers.collections.shouldNotContainAll
 import io.kotlintest.matchers.string.shouldContain
 import io.kotlintest.shouldBe
@@ -154,7 +155,6 @@ class DatabaseTest : ExpectSpec() {
 
                     val totalCost = 0.01.toBigDecimal() * 1000.toBigDecimal() * 1001.toBigDecimal() / 2.toBigDecimal()
 
-                    stats["totalGames"] shouldBe 1000
                     stats["totalCost"] shouldBe totalCost
                     stats["totalTime"] shouldBe (1000 * 1001) / 2
                     stats["avgCost"] shouldBe (totalCost / 1000.toBigDecimal()).round()
@@ -335,6 +335,15 @@ class DatabaseTest : ExpectSpec() {
                 }
             }
         }
+
+        context("export data") {
+            expect("export data is correct") {
+                val export = Database.exportData(SteamId("test_user_id_1"))
+
+                export shouldHaveSize 1000
+            }
+        }
+
     }
 
     private suspend fun allGames() = withContext(Dispatchers.Default) {
